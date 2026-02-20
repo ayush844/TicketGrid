@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -20,10 +15,81 @@ enum Role {
 }
 
 
+enum EventStatus {
+  DRAFT
+  PULISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum EventTag {
+  MUSIC
+  TECH
+  SPORTS
+  WORKSHOP
+  BUSINESS
+  ART
+  COMMUNITY
+  OTHERS
+}
+
 model User {
   id String @id @default(cuid())
   email String @unique
   password String
   role Role
   createdAt DateTime @default(now())
+
+  events Event[]
+}
+
+model Location {
+  id String @id @default(cuid())
+  country String
+  state String
+  city String
+  postalCode String?
+  addressLine String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+
+  @@index([country])
+  @@index([city])
+
+}
+
+
+model Event{
+  id String @id @default(cuid())
+  title String
+  slug String @unique
+  description String
+  startTime DateTime
+  endTime DateTime
+  status EventStatus @default(DRAFT)
+  isPublished Boolean @default(false)
+  publishedAt DateTime?
+  capacity Int
+  ticketSold Int @default(0)
+  imageUrl String?
+
+  tags EventTag[]
+
+  organizer User @relation(fields: [organizerId], references: [id])
+  organizerId String
+
+  location Location @relation(fields: [locationId], references: [id])
+  locationId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([organizerId])
+  @@index([status])
+  @@index([startTime])
+  @@index([locationId])
 }
