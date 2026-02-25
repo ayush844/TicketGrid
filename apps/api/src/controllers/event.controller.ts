@@ -295,3 +295,131 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
     }
 }
 
+
+export const getPublicEvents = async (req: Request, res: Response) => {
+    try {
+
+        const now = new Date();
+
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+
+        const skip = (page - 1) * limit;
+
+        const [upcoming, past, upcomingCount, pastCount] = await Promise.all([
+            prisma.event.findMany({
+                where: {
+                    isPublished: true,
+                    deletedAt: null,
+                    startTime: {gte: now}
+                },
+                skip,
+                take: limit,
+                orderBy: {startTime: "asc"},
+                include: {
+                    location: true,
+                    organizer: {
+                        select: {
+                            id: true,
+                            email: true
+                        }
+                    }
+                }
+            }),
+            prisma.event.findMany({
+                where: {
+                    isPublished: true,
+                    deletedAt: null,
+                    startTime: {lt: now}
+                },
+                orderBy: {startTime: "desc"},
+                include: {
+                    location: true,
+                    organizer: {
+                        select: {
+                            id: true,
+                            email: true
+                        }
+                    }
+                }
+            }),
+            prisma.event.count({
+                where: {
+                    isPublished: true,
+                    deletedAt: null,
+                    startTime: { gte: now }
+                }
+            }),
+            prisma.event.count({
+                where: {
+                    isPublished: true,
+                    deletedAt: null,
+                    startTime: { lt: now }
+                }
+            })
+
+        ])
+
+        return res.json({
+            upcoming,
+            past,
+            count: {
+                upcoming: upcomingCount,
+                past: pastCount
+            }
+        })
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
+
+export const getPublicEventBySlug = async (req: Request, res: Response) => {
+    try {
+        const {slug} = req.params;
+
+        if(!slug || Array.isArray(slug)){
+            return res.status(400).json({
+                message: "No slug provided"
+            });
+        }
+
+        const event = await prisma.event.findFirst(
+            {
+                where: {
+                    slug: slug,
+                    isPublished: true,
+                    deletedAt: null
+                },
+                include: {
+                    location: true,
+                    organizer: {
+                        select: {
+                            id: true,
+                            email: true
+                        }
+                    }
+                }
+            }
+        )
+
+        if(!event){
+            return res.status(404).json({
+                message: "No such event exist"
+            });
+        }
+
+        return res.json({
+            event
+        })
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
