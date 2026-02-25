@@ -132,3 +132,166 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
         });
     }
 }
+
+export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
+    try {
+        const {id} = req.params;
+
+
+        if(!id || Array.isArray(id)){
+            console.log("id is >> ", id);
+            return res.status(400).json({message: "Invalid Email Id"});
+        }
+
+        const event = await prisma.event.findUnique(
+            {
+                where: {id}
+            }
+        )
+
+        if(!event){
+            return res.status(404).json({
+                message: "Event not found"
+            });
+        }
+
+        if(event.organizerId != req.user!.userId){
+            return res.status(403).json({
+                message: "Not authorized"
+            });
+        }
+
+        if(event.deletedAt){
+            return res.json(400).json({
+                message: "event is deleted"
+            });
+        }
+
+        if(event.startTime <= new Date()){
+            return res.status(400).json(
+                {message: "can not publish past events"}
+            );
+        }
+
+        if(event.capacity <= 0){
+            return res.status(400).json({
+                message: "Capacity must be greater than zero"
+            });
+        }
+
+        const updated = await prisma.event.update({
+            where: {id},
+            data: {
+                status: "PULISHED",
+                isPublished: true,
+                publishedAt: new Date()
+            }
+        })
+
+        return res.json(updated);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
+
+export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
+    try {
+        const {id} = req.params;
+
+        if(!id || Array.isArray(id)){
+            console.log("id is >> ", id);
+            return res.status(400).json({message: "Invalid Email Id"});
+        }
+
+        const event = await prisma.event.findUnique({
+            where: {id}
+        })
+
+        if(!event){
+            return res.status(404).json({
+                message: "event not found"
+            });
+        }
+
+        if(event.organizerId != req.user!.userId){
+            return res.status(403).json({
+                message: "Not authorized"
+            });
+        }
+
+        if(event.deletedAt){
+            return res.status(400).json({
+                message: "Event is deleted"
+            });
+        }
+
+        const updated = await prisma.event.update({
+            where: {id},
+            data: {
+                status: "CANCELLED",
+                isPublished: false
+            }
+        });
+
+        return res.json(updated);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
+
+export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) => {
+    try {
+        const {id} = req.params;
+
+        if(!id || Array.isArray(id)){
+            console.log("id is >> ", id);
+            return res.status(400).json({message: "Invalid Email Id"});
+        }
+
+        const event = await prisma.event.findUnique(
+            {
+                where: {id}
+            }
+        );
+
+        if(!event){
+            return res.status(404).json({
+                message: "Event not found"
+            });
+        }
+
+        if(event.organizerId != req.user!.userId){
+            return res.status(403).json({
+                message: "Not Authorized"
+            });
+        }
+
+        const updated = await prisma.event.update({
+            where: {id},
+            data: {
+                deletedAt: new Date(),
+                isPublished: false
+            }
+        });
+
+        return res.json({
+            message: "Event deleted successfully"
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
+
