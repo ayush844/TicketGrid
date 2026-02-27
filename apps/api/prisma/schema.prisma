@@ -17,7 +17,7 @@ enum Role {
 
 enum EventStatus {
   DRAFT
-  PULISHED
+  PUBLISHED
   CANCELLED
   COMPLETED
 }
