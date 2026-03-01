@@ -5,6 +5,7 @@ import { prisma } from "../config/prisma.js";
 import { redis } from "../config/redis.js";
 import { clearListingCache } from "../utils/cacheHelper.utils.js";
 import { createLog } from "../services/log.service.js";
+import { publishLog } from "../services/log.publisher.js";
 
 
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
@@ -45,7 +46,7 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
 
         await clearListingCache();
 
-        await createLog({
+        publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
             action: "CREATE_EVENT",
@@ -143,7 +144,7 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
         await redis.del(`event:slug:${updatedEvent.slug}`);
         await clearListingCache();
 
-        await createLog({
+        publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
             action: "UPDATE_EVENT",
@@ -222,7 +223,7 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
         await redis.del(`event:slug:${updated.slug}`);
         await clearListingCache();
 
-        await createLog({
+        publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
             action: "PUBLISH_EVENT",
@@ -285,7 +286,7 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
         await redis.del(`event:slug:${updated.slug}`);
         await clearListingCache();
 
-        await createLog({
+        publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
             action: "CANCEL_EVENT",
@@ -346,7 +347,7 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
         await redis.del(`event:slug:${updated.slug}`);
         await clearListingCache();
 
-        await createLog({
+        publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
             action: "DELETE_EVENT",
