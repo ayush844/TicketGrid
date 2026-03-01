@@ -21,7 +21,7 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
     }
 
     const token = authHeader.split(" ")[1];
-    console.log("TOKEN is ", token)
+
     try {
         const decoded = jwt.verify(token!, process.env.BACKEND_JWT_SECRET!) as TokenPayload;
         req.user = decoded;

@@ -4,6 +4,7 @@ import { generateSlug } from "../utils/slug.utils.js";
 import { prisma } from "../config/prisma.js";
 import { redis } from "../config/redis.js";
 import { clearListingCache } from "../utils/cacheHelper.utils.js";
+import { createLog } from "../services/log.service.js";
 
 
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
@@ -43,6 +44,17 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
         });
 
         await clearListingCache();
+
+        await createLog({
+            userId: req.user!.userId,
+            role: req.user!.role,
+            action: "CREATE_EVENT",
+            entityType: "EVENT",
+            entityId: event.id,
+            metadata: {
+                title: event.title
+            }
+        })
 
         return res.status(201).json(event);
 
@@ -131,6 +143,17 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
         await redis.del(`event:slug:${updatedEvent.slug}`);
         await clearListingCache();
 
+        await createLog({
+            userId: req.user!.userId,
+            role: req.user!.role,
+            action: "UPDATE_EVENT",
+            entityType: "EVENT",
+            entityId: updatedEvent.id,
+            metadata: {
+                title: updatedEvent.title
+            }
+        });
+
         return res.status(200).json(updatedEvent);
         
     } catch (error) {
@@ -199,6 +222,17 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
         await redis.del(`event:slug:${updated.slug}`);
         await clearListingCache();
 
+        await createLog({
+            userId: req.user!.userId,
+            role: req.user!.role,
+            action: "PUBLISH_EVENT",
+            entityType: "EVENT",
+            entityId: updated.id,
+            metadata: {
+                title: updated.title
+            }
+        });
+
         return res.json(updated);
 
     } catch (error) {
@@ -251,6 +285,18 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
         await redis.del(`event:slug:${updated.slug}`);
         await clearListingCache();
 
+        await createLog({
+            userId: req.user!.userId,
+            role: req.user!.role,
+            action: "CANCEL_EVENT",
+            entityType: "EVENT",
+            entityId: updated.id,
+            metadata: {
+                title: updated.title
+            }
+        });
+
+
         return res.json(updated);
 
     } catch (error) {
@@ -287,7 +333,8 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
                 message: "Not Authorized"
             });
         }
-
+        const delId = event.id;
+        const delTitle = event.title;
         const updated = await prisma.event.update({
             where: {id},
             data: {
@@ -298,6 +345,18 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
 
         await redis.del(`event:slug:${updated.slug}`);
         await clearListingCache();
+
+        await createLog({
+            userId: req.user!.userId,
+            role: req.user!.role,
+            action: "DELETE_EVENT",
+            entityType: "EVENT",
+            entityId: delId,
+            metadata: {
+                title: delTitle
+            }
+        });
+
 
         return res.json({
             message: "Event deleted successfully"
