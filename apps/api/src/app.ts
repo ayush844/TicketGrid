@@ -5,6 +5,7 @@ import authRoute from "./routes/auth.route.js";
 import testRoutes from "./routes/test.route.js";
 import eventRoutes from "./routes/event.route.js";
 import uploadRoutes from "./routes/upload.route.js";
+import bookingRoutes from "./routes/booking.route.js";
 
 
 const app = express();
@@ -21,6 +22,8 @@ app.use("/auth", authRoute);
 app.use("/events", eventRoutes);
 
 app.use("/uploads", uploadRoutes);
+
+app.use("/api", bookingRoutes);
 
 export default app;
 
