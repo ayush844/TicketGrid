@@ -126,6 +126,7 @@ model Booking {
   event Event @relation(fields: [eventId], references: [id])
   payment Payment?
   tickets Ticket[]
+  expiresAt DateTime?
   @@index([eventId])
   @@index([userId])
 }
@@ -133,7 +134,7 @@ model Booking {
 model Payment {
   id String @id @default(cuid())
   bookingId String @unique
-  stripeSessionId String
+  stripeSessionId String @unique
   stripePaymentIntentId String?
   amount Int
   status PaymentStatus @default(PENDING)

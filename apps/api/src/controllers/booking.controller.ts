@@ -12,7 +12,7 @@ export const reserveTickets = async (req: AuthenticatedRequest, res: Response) =
             return res.status(400).json({message: "Event ID is required"});
         }
 
-        if( !quantity || typeof quantity !== "number" || quantity < 1 || quantity > 10){
+        if( typeof quantity !== "number" || quantity < 1 || quantity > 10){
             return res.status(400).json({message: "Quantity must be a number between 1 and 10"});
         }
 
@@ -43,20 +43,23 @@ export const reserveTickets = async (req: AuthenticatedRequest, res: Response) =
 
             const totalAmount = event.price * quantity;
 
+            const expiry = new Date(Date.now() + 10 * 60 * 1000);
+
             const booking = await tx.booking.create({
                 data: {
                     userId: req.user!.userId,
                     eventId: event.id,
                     quantity,
                     totalAmount,
-                    status: "PENDING"
+                    status: "PENDING",
+                    expiresAt: expiry
                 }
             });
             
             return booking;
         })
 
-        return res.status(200).json({
+        return res.status(201).json({
             bookingId: booking.id,
             quantity: booking.quantity,
             totalAmount: booking.totalAmount,
