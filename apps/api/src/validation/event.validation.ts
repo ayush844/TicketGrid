@@ -63,6 +63,8 @@ export const updateEventSchema = z.object({
         addressLine: z.string().min(3).optional()
     }).optional(),
 
-    imageUrl: z.url().optional()
+    imageUrl: z.url().optional(),
+
+    price: z.number().optional()
 
 })

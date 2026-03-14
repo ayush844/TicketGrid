@@ -99,7 +99,7 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
             })
         };
 
-        const {title, description, startTime, endTime, capacity, tags, location} = req.body;
+        const {title, description, startTime, endTime, capacity, tags, location, price} = req.body;
 
         if(startTime && endTime){
             if(new Date(endTime) <= new Date(startTime)){
@@ -131,6 +131,7 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
                     description,
                     capacity,
                     tags,
+                    price,
                     startTime: startTime ? new Date(startTime) : existingEvent.startTime,
                     endTime: endTime ? new Date(endTime) : existingEvent.endTime
                 },

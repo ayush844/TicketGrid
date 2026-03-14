@@ -33,6 +33,19 @@ enum EventTag {
   OTHERS
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 model User {
   id String @id @default(cuid())
   email String @unique
@@ -41,6 +54,8 @@ model User {
   createdAt DateTime @default(now())
 
   events Event[]
+  bookings Booking[]
+  tickets Ticket[]
 }
 
 model Location {
@@ -73,8 +88,12 @@ model Event{
   isPublished Boolean @default(false)
   publishedAt DateTime?
   capacity Int
-  ticketSold Int @default(0)
+  ticketsSold Int @default(0)
   imageUrl String?
+
+  price Int @default(0)
+  bookings Booking[]
+  tickets Ticket[]
 
   tags EventTag[]
 
@@ -92,4 +111,46 @@ model Event{
   @@index([status])
   @@index([startTime])
   @@index([locationId])
+}
+
+model Booking {
+  id String @id @default(cuid())
+  userId String
+  eventId String
+  quantity Int
+  totalAmount Int
+  status BookingStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+  payment Payment?
+  tickets Ticket[]
+  expiresAt DateTime?
+  @@index([eventId])
+  @@index([userId])
+}
+
+model Payment {
+  id String @id @default(cuid())
+  bookingId String @unique
+  stripeSessionId String @unique
+  stripePaymentIntentId String?
+  amount Int
+  status PaymentStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([stripeSessionId])
+}
+
+model Ticket {
+  id String @id @default(cuid())
+  bookingId String
+  eventId String
+  userId String
+  createdAt DateTime @default(now())
+  booking Booking @relation(fields: [bookingId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
