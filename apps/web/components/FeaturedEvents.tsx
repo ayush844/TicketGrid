@@ -3,62 +3,100 @@ import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
 import { featuredEvents } from '../data/mock';
+import defaultBg from "../assets/defaultBG.jpeg"
 
 interface iEvent {
-    id: number;
-    name: string;
-    date: string;
-    time: string;
-    location: string;
-    price: number;
-    category: string;
-    image: string;
-    featured: boolean;
-}
- 
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  price: number;
+  imageUrl: string | null;
+  tags: string[];
 
-const EventCard = ({ event } : { event: iEvent }) => {
-  const formatDate = (dateString : string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    addressLine: string;
   };
+}
+
+
+export const EventCard = ({ event }: { event: iEvent }) => {
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const formattedDate = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    const formattedTime = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    return `${formattedDate} • ${formattedTime}`;
+  };
+
+  const fullLocation = `${event.location.addressLine}, ${event.location.city}`;
 
   return (
     <Card className="group relative overflow-hidden bg-slate-900/50 border border-white/10 hover:border-cyan-500/50 transition-all duration-500 cursor-pointer backdrop-blur-sm hover-lift animate-fade-in-up">
+      
       {/* Event Image */}
       <div className="relative h-56 overflow-hidden">
         <img 
-          src={event.image} 
-          alt={event.name}
+          src={event.imageUrl || defaultBg.src} 
+          alt={event.title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-        
-        {/* Category with slide animation */}
-        <div className="absolute top-4 left-4 px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs font-semibold text-white uppercase transition-all duration-300 group-hover:bg-cyan-500/20 group-hover:border-cyan-400/50 group-hover:scale-110">
-          {event.category}
+
+        {/* TAGS (MULTIPLE) */}
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          {event.tags.map((tag, index) => (
+            <span
+              key={index}
+              className="px-3 py-1 bg-black/50 backdrop-blur-md border border-white/20 rounded-full text-xs font-semibold text-white uppercase transition-all duration-300 group-hover:bg-cyan-500/20 group-hover:border-cyan-400/50"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
-        
-        {/* Price with pulse animation */}
-        <div className="absolute bottom-4 right-4 px-4 py-2 bg-cyan-500 text-white rounded-lg font-bold shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-cyan-500/50 animate-scale-in">
-          ${event.price}
+
+        {/* Price */}
+        <div className="absolute bottom-4 right-4 px-4 py-2 bg-cyan-500 text-white rounded-lg font-bold shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-cyan-500/50">
+          ₹{event.price}
         </div>
       </div>
 
       {/* Event Details */}
       <div className="p-6">
         <h3 className="text-xl font-bold text-white mb-4 line-clamp-2 group-hover:text-cyan-400 transition-colors duration-300">
-          {event.name}
+          {event.title}
         </h3>
-        
+
         <div className="space-y-3 mb-6">
+          {/* Date */}
           <div className="flex items-center gap-3 text-slate-400 group-hover:text-slate-300 transition-all duration-300 group-hover:translate-x-1">
             <Calendar className="w-4 h-4 text-cyan-500" />
-            <span className="text-sm">{formatDate(event.date)} • {event.time}</span>
+            <span className="text-sm">
+              {formatDateTime(event.startTime)}
+            </span>
           </div>
+
+          {/* Location */}
           <div className="flex items-center gap-3 text-slate-400 group-hover:text-slate-300 transition-all duration-300 group-hover:translate-x-1">
             <MapPin className="w-4 h-4 text-cyan-500" />
-            <span className="text-sm line-clamp-1">{event.location}</span>
+            <span className="text-sm line-clamp-1">
+              {fullLocation}
+            </span>
           </div>
         </div>
 

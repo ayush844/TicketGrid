@@ -11,7 +11,7 @@ import { publishLog } from "../services/log.publisher.js";
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
     try {
         
-        const {title, description, startTime, endTime, capacity, tags, location} = req.body;
+        const {title, description, startTime, endTime, capacity, tags, location, imageUrl} = req.body;
 
         if(new Date(startTime) >= new Date(endTime)){
             return res.status(400).json({
@@ -36,7 +36,8 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
                     capacity,
                     organizerId: req.user!.userId,
                     locationId: createdLocation.id,
-                    tags
+                    tags,
+                    imageUrl
                 },
                 include: {
                     location: true
@@ -99,7 +100,7 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
             })
         };
 
-        const {title, description, startTime, endTime, capacity, tags, location, price} = req.body;
+        const {title, description, startTime, endTime, capacity, tags, location, price, imageUrl} = req.body;
 
         if(startTime && endTime){
             if(new Date(endTime) <= new Date(startTime)){
@@ -133,7 +134,8 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
                     tags,
                     price,
                     startTime: startTime ? new Date(startTime) : existingEvent.startTime,
-                    endTime: endTime ? new Date(endTime) : existingEvent.endTime
+                    endTime: endTime ? new Date(endTime) : existingEvent.endTime,
+                    imageUrl
                 },
                 include: {
                     location: true
