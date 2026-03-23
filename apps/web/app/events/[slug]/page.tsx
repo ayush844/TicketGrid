@@ -2,6 +2,8 @@ import { Calendar, MapPin, Users, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExpandableDescription } from "@/components/description";
 import defaultBg from "@/assets/defaultBG.jpeg";
+import { callPublicApi } from "@/lib/publicApi";
+import BookingCard from "@/components/BookingCard";
 
 const getEvent = async (slug: string) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${slug}`, {
@@ -40,7 +42,9 @@ export default async function Page({
 }) {
   const { slug } = await params;
 
-  const data = await getEvent(slug);
+//   const data = await getEvent(slug);
+    const data = await callPublicApi(`/events/${slug}`)
+
   const event = data.event;
 
   const isSoldOut = event.ticketsSold >= event.capacity;
@@ -152,38 +156,7 @@ export default async function Page({
           <ExpandableDescription text={event.description} />
         </div>
 
-        <div className="sticky top-28 h-fit">
-
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl">
-
-            <div className="text-3xl font-bold text-cyan-400 mb-6">
-              ₹{event.price}
-            </div>
-            <Button
-              disabled={isSoldOut || isPastEvent}
-              className={`w-full mb-4 ${
-                isPastEvent
-                  ? "bg-yellow-600 cursor-not-allowed"
-                  : isSoldOut
-                  ? "bg-gray-600 cursor-not-allowed"
-                  : "bg-cyan-500 hover:bg-cyan-600"
-              }`}
-            >
-              {isPastEvent
-                ? "Event Ended"
-                : isSoldOut
-                ? "Sold Out"
-                : "Register Now"}
-            </Button>
-
-            <div className="text-sm text-slate-400 space-y-2">
-              <p>
-                <span className="text-white">Organizer:</span>{" "}
-                {event.organizer.email}
-              </p>
-            </div>
-          </div>
-        </div>
+        <BookingCard eventId={event.id} price={event.price} isPastEvent={isPastEvent} isSoldOut={isSoldOut} />
       </div>
     </main>
   );

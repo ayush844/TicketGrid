@@ -1,49 +1,51 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 import { createBackendToken } from "./backendToken";
-import { redirect } from "next/navigation";
-import { error } from "console";
 
 type HttpMethods = "GET" | "POST" | "PUT" | "DELETE";
 
 interface CallBackendOptions {
-    method?: HttpMethods;
-    body?: any;
+  method?: HttpMethods;
+  body?: any;
 }
 
-export const callBackend = async (endpoint: string, options: CallBackendOptions = {}) => {
-    const session = await getServerSession(authOptions);
+export const callBackend = async (
+  endpoint: string,
+  options: CallBackendOptions = {}
+) => {
+  const session = await getServerSession(authOptions);
 
-    if(!session){
-        console.error("Unauthorized!");
-        redirect("/signin");
+  if (!session) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  const token = createBackendToken({
+    id: session.user.id,
+    role: session.user.role,
+  });
+
+  const { method = "GET", body } = options;
+
+  const response = await fetch(
+    `${process.env.BACKEND_URL}${endpoint}`,
+    {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      ...(body && { body: JSON.stringify(body) }),
     }
+  );
 
-    const token = createBackendToken({
-        id: session.user.id,
-        role: session.user.role
-    });
+  if (response.status === 401) {
+    throw new Error("UNAUTHORIZED");
+  }
 
-    const {method = "GET", body} = options;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Internal Server Error");
+  }
 
-    const response = await fetch(`${process.env.BACKEND_URL}${endpoint}`, {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-        },
-        ...(body && {body: JSON.stringify(body)})
-    })
-
-    if (response.status === 401) {
-        redirect("/signin");
-    }
-
-    if (!response.ok) {
-        const error = await response.json();
-        console.error("Backend request failed");
-        throw new Error(error.message || "Internal Server Error");
-    }
-
-    return response.json();
-}
+  return response.json();
+};
