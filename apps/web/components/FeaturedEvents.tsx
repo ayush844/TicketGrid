@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
 import { featuredEvents } from '../data/mock';
 import defaultBg from "../assets/defaultBG.jpeg"
+import Link from 'next/link';
 
 interface iEvent {
   id: string;
@@ -49,7 +50,6 @@ export const EventCard = ({ event }: { event: iEvent }) => {
   return (
     <Card className="group relative overflow-hidden bg-slate-900/50 border border-white/10 hover:border-cyan-500/50 transition-all duration-500 cursor-pointer backdrop-blur-sm hover-lift animate-fade-in-up">
       
-      {/* Event Image */}
       <div className="relative h-56 overflow-hidden">
         <img 
           src={event.imageUrl || defaultBg.src} 
@@ -58,7 +58,6 @@ export const EventCard = ({ event }: { event: iEvent }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
 
-        {/* TAGS (MULTIPLE) */}
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
           {event.tags.map((tag, index) => (
             <span
@@ -70,20 +69,17 @@ export const EventCard = ({ event }: { event: iEvent }) => {
           ))}
         </div>
 
-        {/* Price */}
         <div className="absolute bottom-4 right-4 px-4 py-2 bg-cyan-500 text-white rounded-lg font-bold shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-cyan-500/50">
           ₹{event.price}
         </div>
       </div>
 
-      {/* Event Details */}
       <div className="p-6">
         <h3 className="text-xl font-bold text-white mb-4 line-clamp-2 group-hover:text-cyan-400 transition-colors duration-300">
           {event.title}
         </h3>
 
         <div className="space-y-3 mb-6">
-          {/* Date */}
           <div className="flex items-center gap-3 text-slate-400 group-hover:text-slate-300 transition-all duration-300 group-hover:translate-x-1">
             <Calendar className="w-4 h-4 text-cyan-500" />
             <span className="text-sm">
@@ -91,7 +87,6 @@ export const EventCard = ({ event }: { event: iEvent }) => {
             </span>
           </div>
 
-          {/* Location */}
           <div className="flex items-center gap-3 text-slate-400 group-hover:text-slate-300 transition-all duration-300 group-hover:translate-x-1">
             <MapPin className="w-4 h-4 text-cyan-500" />
             <span className="text-sm line-clamp-1">
@@ -99,13 +94,14 @@ export const EventCard = ({ event }: { event: iEvent }) => {
             </span>
           </div>
         </div>
-
+        <Link href={`/events/${event.slug}`}>
         <Button 
           className="w-full bg-white/5 hover:bg-cyan-500 border border-white/10 hover:border-cyan-500 text-white transition-all duration-300 group/btn"
         >
           View Details
           <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
         </Button>
+        </Link>
       </div>
     </Card>
   );
@@ -115,7 +111,6 @@ const FeaturedEvents = () => {
   return (
     <section id="events" className="relative py-16 sm:py-20 lg:py-24 bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-        {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">
             Upcoming Events
@@ -125,14 +120,12 @@ const FeaturedEvents = () => {
           </p>
         </div>
 
-        {/* Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
           {featuredEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
 
-        {/* View All Button */}
         <div className="text-center px-4">
           <Button 
             size="lg"
