@@ -88,15 +88,19 @@ export const stripeWebhook = async (req: Request, res: Response) => {
                 const tickets = [];
 
                 for(let i = 0; i < booking.quantity; i++){
+
+                    const ticketId = crypto.randomUUID();
+                    const qr = await generateQRCode(ticketId);
                     const ticket = await tx.ticket.create({
                         data: {
+                            id: ticketId,
                             bookingId: booking.id,
                             eventId: booking.eventId,
-                            userId: booking.userId
+                            userId: booking.userId,
+                            qrCode: qr
                         }
                     })
 
-                    const qr = await generateQRCode(ticket.id);
 
                     tickets.push({
                         ticketId: ticket.id,

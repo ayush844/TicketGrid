@@ -12,29 +12,24 @@ export default function BookingCancelPage() {
 
       <div className="max-w-md w-full text-center bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl shadow-xl">
 
-        {/* ICON */}
         <div className="flex justify-center mb-6">
           <XCircle className="w-16 h-16 text-red-400" />
         </div>
 
-        {/* TITLE */}
         <h1 className="text-2xl font-bold mb-3">
           Payment Cancelled
         </h1>
 
-        {/* MESSAGE */}
         <p className="text-slate-400 mb-6">
           Your payment was not completed.  
           You can try again before your booking expires.
         </p>
 
-        {/* WARNING BOX */}
         <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 mb-6 text-sm text-yellow-300 flex items-center justify-center gap-2">
           <AlertTriangle className="w-4 h-4" />
           <span>Your booking is reserved for a limited time.</span>
         </div>
 
-        {/* NOT LOGGED IN */}
         {status !== "loading" && !session && (
           <div className="flex items-center justify-center gap-2 text-yellow-400 text-sm mb-4">
             <Info className="w-4 h-4" />
@@ -42,16 +37,14 @@ export default function BookingCancelPage() {
           </div>
         )}
 
-        {/* ACTIONS */}
         <div className="flex flex-col gap-3">
 
-          {/* If logged in → retry flow */}
-          {session ? (
+          {/* {session ? (
             <Link
               href="/"
               className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 font-semibold transition"
             >
-              Try Payment Again
+              Go Back to Home
             </Link>
           ) : (
             <Link
@@ -60,7 +53,7 @@ export default function BookingCancelPage() {
             >
               Sign In to Continue
             </Link>
-          )}
+          )} */}
 
           <Link
             href="/"
