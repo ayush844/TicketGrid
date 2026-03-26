@@ -21,17 +21,31 @@ export default function BookingSuccessPage() {
   const [booking, setBooking] = useState<any>(null);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (!bookingId) return;
 
-    const fetchBooking = async () => {
-      const res = await fetch(`/api/bookings/${bookingId}`);
-      const data = await res.json();
-      setBooking(data.booking);
-    };
+  useEffect(() => { 
+        if (!bookingId) return;
+        let attempts = 0;
+        const fetchBooking = async () => { 
+            try {
+                const res = await fetch(`/api/bookings/${bookingId}`);
+                const data = await res.json();
 
-    fetchBooking();
-  }, [bookingId]);
+                if (data?.booking?.tickets?.length) {
+                    setBooking(data.booking);
+                    return;
+                }
+
+                if (attempts < 5) {
+                    attempts++;
+                    setTimeout(fetchBooking, 1500); // retry
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchBooking();
+    }, [bookingId]);
 
   useEffect(() => {
     if (open) {
