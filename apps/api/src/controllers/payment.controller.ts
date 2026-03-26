@@ -63,8 +63,8 @@ export const createCheckoutSession = async(req: AuthenticatedRequest, res: Respo
                 }
             ],
 
-            success_url: `${process.env.FRONTEND_URL}/booking-success`,
-            cancel_url: `${process.env.FRONTEND_URL}/booking-cancel`
+            success_url: `${process.env.FRONTEND_URL}/booking-success?bookingId=${booking.id}`,
+            cancel_url: `${process.env.FRONTEND_URL}/booking-cancel?bookingId=${booking.id}`
         });
 
         await prisma.payment.create({

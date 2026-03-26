@@ -1,21 +1,29 @@
 "use client"
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Mail, Lock, User, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ROLES, Roles } from "@/lib/constants";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 const Signup = () => {
   const [role, setRole] = useState<Roles>(ROLES.USER);
   const [loading, setLoading] = useState(false);
+    const { data: session, status } = useSession();
+  
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   const handleSignup = async(e: React.FormEvent)=>{
     e.preventDefault();
