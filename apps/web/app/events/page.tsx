@@ -21,7 +21,7 @@ export default function Home() {
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(true);
 
-  const [hasFetched, setHasFetched] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
 
   const LIMIT = 6;
   const CACHE_TTL = 30 * 1000;
@@ -49,16 +49,19 @@ export default function Home() {
         const cached = tabCache[page];
         const now = Date.now();
 
+        setIsFetched(false);
+
         if (cached) {
           setEvents(cached.events);
           setTotalPages(cached.totalPages);
 
           if (now - cached.timestamp < CACHE_TTL) {
             setLoading(false);
-            setHasFetched(true);
+            setIsFetched(true);
             return;
           }
         } else {
+          setEvents([]);
           setLoading(true);
         }
 
@@ -81,6 +84,7 @@ export default function Home() {
 
         setEvents(formattedData.events);
         setTotalPages(formattedData.totalPages);
+        setIsFetched(true);
 
         if (page < formattedData.totalPages) {
           if (activeTab === "upcoming") {
@@ -93,9 +97,9 @@ export default function Home() {
       } catch (error) {
         console.error(error);
         setEvents([]);
+        setIsFetched(true);
       } finally {
         setLoading(false);
-        setHasFetched(true);
       }
     };
 
@@ -108,6 +112,14 @@ export default function Home() {
   const handleTabChange = (tab: "upcoming" | "past") => {
     setActiveTab(tab);
     setPage(1);
+
+    const hasCache = cacheRef.current[tab][1];
+
+    if (!hasCache) {
+      setEvents([]);
+      setLoading(true);
+      setIsFetched(false);
+    }
   };
 
   return (
@@ -143,13 +155,13 @@ export default function Home() {
           </div>
         </div>
 
-        {!hasFetched || (loading && events.length === 0) ? (
+        {loading || !isFetched ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="h-72 rounded-xl bg-white/5 animate-pulse" />
             ))}
           </div>
-        ) : hasFetched && events.length === 0 ? (
+        ) : events.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
             <p className="text-lg">No events found</p>
           </div>
