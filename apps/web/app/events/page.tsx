@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getEvents } from "@/lib/api";
+import { useEffect, useState, useRef } from "react";
+import { getUpcomingEvents, getPastEvents } from "@/lib/api";
 import { EventCard } from "@/components/FeaturedEvents";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -13,15 +13,28 @@ export default function Home() {
     (searchParams.get("tab") as "upcoming" | "past") || "upcoming";
   const initialPage = Number(searchParams.get("page")) || 1;
 
-  const [upcoming, setUpcoming] = useState<any[]>([]);
-  const [past, setPast] = useState<any[]>([]);
-  const [counts, setCounts] = useState({ upcoming: 0, past: 0 });
+  const [events, setEvents] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [activeTab, setActiveTab] = useState<"upcoming" | "past">(initialTab);
+  const [activeTab, setActiveTab] =
+    useState<"upcoming" | "past">(initialTab);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(true);
 
-  const LIMIT = 10;
+  const [hasFetched, setHasFetched] = useState(false);
+
+  const LIMIT = 6;
+  const CACHE_TTL = 30 * 1000;
+
+  const cacheRef = useRef<{
+    upcoming: Record<number, any>;
+    past: Record<number, any>;
+  }>({
+    upcoming: {},
+    past: {}
+  });
+
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     router.replace(`?tab=${activeTab}&page=${page}`);
@@ -29,30 +42,65 @@ export default function Home() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const data = await getEvents(page, LIMIT);
+      const requestId = ++requestIdRef.current;
 
-        setUpcoming(data?.upcoming || []);
-        setPast(data?.past || []);
-        setCounts(data?.count || { upcoming: 0, past: 0 });
+      try {
+        const tabCache = cacheRef.current[activeTab];
+        const cached = tabCache[page];
+        const now = Date.now();
+
+        if (cached) {
+          setEvents(cached.events);
+          setTotalPages(cached.totalPages);
+
+          if (now - cached.timestamp < CACHE_TTL) {
+            setLoading(false);
+            setHasFetched(true);
+            return;
+          }
+        } else {
+          setLoading(true);
+        }
+
+        let data;
+        if (activeTab === "upcoming") {
+          data = await getUpcomingEvents(page, LIMIT);
+        } else {
+          data = await getPastEvents(page, LIMIT);
+        }
+
+        if (requestId !== requestIdRef.current) return;
+
+        const formattedData = {
+          events: data?.events || [],
+          totalPages: data?.totalPages || 1,
+          timestamp: now
+        };
+
+        cacheRef.current[activeTab][page] = formattedData;
+
+        setEvents(formattedData.events);
+        setTotalPages(formattedData.totalPages);
+
+        if (page < formattedData.totalPages) {
+          if (activeTab === "upcoming") {
+            getUpcomingEvents(page + 1, LIMIT);
+          } else {
+            getPastEvents(page + 1, LIMIT);
+          }
+        }
+
       } catch (error) {
         console.error(error);
-        setUpcoming([]);
-        setPast([]);
+        setEvents([]);
       } finally {
         setLoading(false);
+        setHasFetched(true);
       }
     };
 
     fetchEvents();
-  }, [page]);
-
-  const isUpcoming = activeTab === "upcoming";
-  const eventsToRender = isUpcoming ? upcoming : past;
-  const totalCount = isUpcoming ? counts.upcoming : counts.past;
-
-  const totalPages = Math.ceil(totalCount / LIMIT);
+  }, [page, activeTab]);
 
   const isPrevDisabled = page === 1;
   const isNextDisabled = page >= totalPages;
@@ -95,25 +143,25 @@ export default function Home() {
           </div>
         </div>
 
-        {loading ? (
+        {!hasFetched || (loading && events.length === 0) ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="h-72 rounded-xl bg-white/5 animate-pulse" />
             ))}
           </div>
-        ) : eventsToRender.length === 0 ? (
+        ) : hasFetched && events.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
             <p className="text-lg">No events found</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {eventsToRender.map((event) => (
+              {events.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>
 
-            {isUpcoming && totalPages > 1 && (
+            {totalPages > 1 && (
               <div className="flex justify-center items-center gap-6 mt-12">
 
                 <button

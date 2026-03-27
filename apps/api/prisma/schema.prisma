@@ -107,10 +107,10 @@ model Event{
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
+  @@index([isPublished, deletedAt, startTime])
   @@index([organizerId])
-  @@index([status])
-  @@index([startTime])
   @@index([locationId])
+  @@index([status])
 }
 
 model Booking {
