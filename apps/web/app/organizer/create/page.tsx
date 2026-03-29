@@ -123,16 +123,23 @@ export default function CreateEventPage() {
           method: "PUT",
           body: file
         });
-
-        await fetch(`/api/events/${eventId}`, {
-          method: "PUT",
-          body: JSON.stringify({
+        console.log("File uploaded to storage", fileUrl);
+        const updateRes = await fetch(`/api/events/${eventId}`, {
+        method: "PUT",
+        body: JSON.stringify({
             imageUrl: fileUrl,
-          }),
-          headers: {
+        }),
+        headers: {
             "Content-Type": "application/json",
-          },
+        },
         });
+
+        const updateData = await updateRes.json();
+        console.log("UPDATE RESPONSE:", updateData);
+
+        if (!updateRes.ok) {
+        throw new Error(updateData.message || "Failed to update image");
+        }
       }
 
       router.push("/organizer");

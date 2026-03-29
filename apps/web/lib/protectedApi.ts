@@ -2,7 +2,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { createBackendToken } from "./backendToken";
 
-type HttpMethods = "GET" | "POST" | "PUT" | "DELETE";
+type HttpMethods = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 interface CallBackendOptions {
   method?: HttpMethods;
@@ -44,6 +44,7 @@ export const callBackend = async (
 
   if (!response.ok) {
     const error = await response.json();
+    console.error("Backend error:", error);
     throw new Error(error.message || "Internal Server Error");
   }
 

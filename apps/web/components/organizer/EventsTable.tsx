@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ActionButton from "./ActionButton";
 
 type Props = {
   events: any[];
@@ -61,13 +62,29 @@ const EventsTable = ({ events }: Props) => {
                   {new Date(event.startTime).toLocaleDateString()}
                 </td>
 
-                <td className="px-6 py-4 text-right">
-                  <Link
+                <td className="px-6 py-4 text-right space-x-3">
+
+                <Link
                     href={`/organizer/events/${event.id}`}
-                    className="text-sm text-white hover:underline"
-                  >
+                    className="text-xs text-slate-300 hover:text-white"
+                >
                     View
-                  </Link>
+                </Link>
+
+                {!event.isPublished && (
+                    <ActionButton
+                    label="Publish"
+                    endpoint={`/events/${event.id}/publish`}
+                    color="green"
+                    />
+                )}
+
+                <ActionButton
+                    label="Delete"
+                    endpoint={`/events/${event.id}/delete`}
+                    color="red"
+                />
+
                 </td>
               </tr>
             ))}
@@ -103,7 +120,22 @@ const EventsTable = ({ events }: Props) => {
             >
               View details
             </Link>
+            <div className="flex gap-3 text-xs mt-2">
+                {!event.isPublished && (
+                    <ActionButton
+                    label="Publish"
+                    endpoint={`/events/${event.id}/publish`}
+                    color="green"
+                    />
+                )}
 
+                <ActionButton
+                    label="Delete"
+                    endpoint={`/events/${event.id}/delete`}
+                    color="red"
+                />
+
+                </div>
           </div>
         ))}
       </div>

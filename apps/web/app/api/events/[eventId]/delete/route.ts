@@ -1,29 +1,26 @@
 import { callBackend } from "@/lib/protectedApi";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { eventId: string } }) {
   try {
-    const body = await req.json();
     const { eventId } = await params;
-
     const data = await callBackend(
-      `/events/${eventId}`,
+      `/events/${eventId}/delete`,
       {
-        method: "PUT",
-        body,
+        method: "PATCH",
       }
     );
 
-    return Response.json(data);
+    return NextResponse.json(data);
   } catch (error: any) {
     if (error.message === "UNAUTHORIZED") {
-      return Response.json(
+      return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    return Response.json(
+    return NextResponse.json(
       { message: error.message },
       { status: 500 }
     );
