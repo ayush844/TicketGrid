@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import { Calendar, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { ROLES } from "@/lib/constants";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -13,11 +14,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const isOrganizer = session?.user?.role === ROLES.ORGANIZER;
+
   const avatarUrl = session?.user?.email
     ? `https://robohash.org/${session.user.email}?set=set4`
     : null;
 
-  // Close avatar dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -31,7 +33,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "auto";
   }, [mobileOpen]);
@@ -50,7 +51,7 @@ export default function Navbar() {
         <div className="absolute inset-0 backdrop-blur-xl bg-white/5 border-b border-white/10"></div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          
+
           {/* LOGO */}
           <Link
             href="/"
@@ -63,13 +64,26 @@ export default function Navbar() {
           </Link>
 
           {/* CENTER LINKS DESKTOP */}
-          <div className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+
             <Link href="/events" className={linkClasses("/events")}>
               Events
             </Link>
-            <Link href="/dashboard" className={linkClasses("/dashboard")}>
-              Dashboard
-            </Link>
+
+            {session && (
+              <Link href="/dashboard" className={linkClasses("/dashboard")}>
+                Dashboard
+              </Link>
+            )}
+
+            {isOrganizer && (
+              <Link
+                href="/organizer"
+                className={linkClasses("/organizer")}
+              >
+                Organizer
+              </Link>
+            )}
           </div>
 
           {/* RIGHT SIDE */}
@@ -100,10 +114,21 @@ export default function Navbar() {
                 </button>
 
                 {open && (
-                  <div className="absolute right-0 mt-4 w-56 bg-slate-900 border border-white/10 rounded-xl p-3 shadow-xl">
+                  <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl p-3 shadow-xl">
                     <p className="text-sm text-white truncate">
                       {session.user.email}
                     </p>
+
+                    {/* Organizer quick link inside dropdown */}
+                    {isOrganizer && (
+                      <Link
+                        href="/organizer"
+                        className="block mt-2 text-sm text-slate-300 hover:text-white"
+                      >
+                        Organizer Panel
+                      </Link>
+                    )}
+
                     <button
                       onClick={() => signOut({ callbackUrl: "/" })}
                       className="mt-3 text-red-500 text-sm"
@@ -166,13 +191,24 @@ export default function Navbar() {
           Events
         </Link>
 
-        <Link
+        {session && (<Link
           href="/dashboard"
           onClick={() => setMobileOpen(false)}
           className="block text-lg text-white"
         >
           Dashboard
-        </Link>
+        </Link>)}
+
+        {/* ✅ Organizer mobile */}
+        {isOrganizer && (
+          <Link
+            href="/organizer"
+            onClick={() => setMobileOpen(false)}
+            className="block text-lg text-white"
+          >
+            Organizer
+          </Link>
+        )}
 
         {!session ? (
           <div className="space-y-4 pt-6 border-t border-white/10">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Calendar, Ticket, MapPin, X } from "lucide-react";
 import TicketCard from "@/components/Ticket";
+import defaultBg from "@/assets/defaultBG.jpeg";
 
 type Props = {
   booking: any;
@@ -31,7 +32,7 @@ const BookingTicketCard = ({ booking }: Props) => {
 
         {/* IMAGE */}
         <img
-          src={event.imageUrl}
+          src={event.imageUrl || defaultBg.src}
           alt={event.title}
           className="w-full h-40 object-cover rounded-lg mb-4"
         />
