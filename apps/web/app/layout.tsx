@@ -9,6 +9,7 @@ import Providers from "@/components/Providers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import ScrollToTop from "@/components/ScrollToTop";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default async function RootLayout({
           <Navbar />
           <ScrollToTop />
           {children}
+          <Toaster richColors position="bottom-right" />
           <Footer />
         </Providers>
       </body>

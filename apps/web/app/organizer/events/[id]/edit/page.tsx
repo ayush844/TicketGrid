@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { State, City } from "country-state-city";
 import { useSession } from "next-auth/react";
 import { ROLES } from "@/lib/constants";
+import { toast } from "sonner";
 
 const EVENT_TAGS = [
   "MUSIC",
@@ -74,7 +75,7 @@ export default function EditEventPage() {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-        alert("Only image allowed");
+        toast.error("Only image allowed");
         return;
         }
 
@@ -183,11 +184,11 @@ if (!form) {
           },
         });
       }
-
+      toast.success("Event updated successfully");
       router.push("/organizer");
 
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || "Failed to update event");
     } finally {
       setLoading(false);
     }

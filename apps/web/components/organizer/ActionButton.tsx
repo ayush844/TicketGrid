@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Props = {
   label: string;
@@ -26,7 +27,7 @@ export default function ActionButton({ label, endpoint, color }: Props) {
       router.refresh(); // 🔥 refresh server data
 
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

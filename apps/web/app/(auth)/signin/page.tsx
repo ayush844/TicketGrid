@@ -5,6 +5,7 @@ import { Mail, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function Signin() {
 
@@ -31,7 +32,7 @@ export default function Signin() {
     const password = passwordRef.current?.value;
 
     if(!email || !password){
-      alert("Please fill all the fields");
+      toast.error("Please fill all the fields");
       return;
     }
 
@@ -46,15 +47,17 @@ export default function Signin() {
       });
 
       if(result?.error){
-        alert("Invalid email or password");
+        toast.error("Invalid email or password");
         return;
       }
+
+      toast.success("Signed in successfully");
 
       router.push("/");
       
     } catch (error) {
       console.error("Signin error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally{
       setLoading(false);
     }

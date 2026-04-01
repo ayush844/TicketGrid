@@ -128,7 +128,7 @@ export default function BookingSuccessPage() {
         <div className="flex flex-col gap-3">
           {session ? (
             <Link
-              href="/my-bookings"
+              href="/dashboard"
               className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 font-semibold"
             >
               View My Bookings

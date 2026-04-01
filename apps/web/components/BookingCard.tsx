@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   eventId: string;
@@ -53,7 +54,7 @@ const BookingCard = ({
       setBookingId(data.bookingId);
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Reservation failed");
+      toast.error(error.message || "Reservation failed");
     } finally {
       setLoading(false);
     }
@@ -85,7 +86,7 @@ const BookingCard = ({
       window.location.href = data.checkoutUrl;
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Checkout failed");
+      toast.error(error.message || "Checkout failed");
     } finally {
       setLoading(false);
     }

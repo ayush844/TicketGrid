@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ROLES, Roles } from "@/lib/constants";
 import { signIn, useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const Signup = () => {
   const [role, setRole] = useState<Roles>(ROLES.USER);
@@ -33,12 +34,12 @@ const Signup = () => {
     const confirmPassword = confirmPasswordRef.current?.value;
 
     if(!email || !password || !confirmPassword ){
-      alert("Please fill all the fields");
+      toast.error("Please fill all the fields");
       return;
     }
 
     if(password !== confirmPassword){
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -60,11 +61,11 @@ const Signup = () => {
       const data = await response.json();
 
       if(!response.ok){
-        alert(data.message || "Signup failed");
+        toast.error(data.message || "Signup failed");
         return;
       }
 
-      alert("Signup successfull, please sign in");
+      toast.success("Account created successfully. Signing you in...");
 
       await signIn("credentials", {
         email,
@@ -75,7 +76,7 @@ const Signup = () => {
 
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally{
       setLoading(false);
     }

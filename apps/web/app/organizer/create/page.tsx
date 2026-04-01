@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { State, City } from "country-state-city";
 import { useSession } from "next-auth/react";
 import { ROLES } from "@/lib/constants";
+import { toast } from "sonner";
 
 const EVENT_TAGS = [
   "MUSIC",
@@ -58,13 +59,13 @@ export default function CreateEventPage() {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            alert("Only image files are allowed");
+            toast.error("Only image files are allowed");
             return;
         }
 
         // Optional: size check (e.g. 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            alert("Image must be less than 5MB");
+            toast.error("Image must be less than 5MB");
             return;
         }
         setFile(file);
@@ -79,17 +80,17 @@ export default function CreateEventPage() {
     e.preventDefault();
 
     if (form.title.length < 3) {
-        alert("Title must be at least 3 characters");
+        toast.error("Title must be at least 3 characters");
         return;
     }
 
     if (form.description.length < 10) {
-        alert("Description must be at least 10 characters");
+        toast.error("Description must be at least 10 characters");
         return;
     }
 
     if (!form.location.state || !form.location.city) {
-        alert("Please select state and city");
+        toast.error("Please select state and city");
         return;
     }
 
@@ -150,11 +151,11 @@ export default function CreateEventPage() {
         throw new Error(updateData.message || "Failed to update image");
         }
       }
-
+      toast.success("Event created successfully");
       router.push("/organizer");
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Failed to create event");
+      toast.error(error.message || "Failed to create event");
     } finally {
       setLoading(false);
     }
