@@ -67,6 +67,6 @@ export const updateEventSchema = z.object({
 
     imageUrl: z.url().optional(),
 
-    price: z.number().optional()
+    price: z.coerce.number().nonnegative().optional(),
 
 })

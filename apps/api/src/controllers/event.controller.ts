@@ -647,5 +647,50 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
     }
 }
 
+export const getPublicEventById = async (req: Request, res: Response) => {
+    try {
+        const {id} = req.params;
 
+        if(!id || Array.isArray(id)){
+            return res.status(400).json({
+                message: "No id provided"
+            });
+        }
+
+        const event = await prisma.event.findFirst(
+            {
+                where: {
+                    id: id,
+                    isPublished: true,
+                    deletedAt: null
+                },
+                include: {
+                    location: true,
+                    organizer: {
+                        select: {
+                            id: true,
+                            email: true
+                        }
+                    }
+                }
+            }
+        )
+
+        if(!event){
+            return res.status(404).json({
+                message: "No such event exist"
+            });
+        }
+
+        return res.json({
+            event
+        })
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
 

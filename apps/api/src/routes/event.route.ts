@@ -2,7 +2,7 @@ import { Router } from "express";
 import { requireAuth, requireRole } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { createEventSchema, updateEventSchema } from "../validation/event.validation.js";
-import { createEvent, updateEvent, publishEvent, cancelEvent, softDeleteEvent, getPublicEvents, getPublicEventBySlug, getUpcomingEvents, getPastEvents } from "../controllers/event.controller.js";
+import { createEvent, updateEvent, publishEvent, cancelEvent, softDeleteEvent, getPublicEvents, getPublicEventBySlug, getUpcomingEvents, getPastEvents, getPublicEventById } from "../controllers/event.controller.js";
 
 const router = Router();
 
@@ -21,6 +21,8 @@ router.get("/", getPublicEvents);
 router.get("/upcoming", getUpcomingEvents);
 
 router.get("/past", getPastEvents);
+
+router.get("/id/:id", getPublicEventById);
 
 router.get("/:slug", getPublicEventBySlug);
 

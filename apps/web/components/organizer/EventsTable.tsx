@@ -79,6 +79,13 @@ const EventsTable = ({ events }: Props) => {
                     />
                 )}
 
+                <Link
+                    href={`/organizer/events/${event.id}/edit`}
+                    className="text-xs text-blue-400 hover:text-blue-500"
+                >
+                    Edit
+                </Link>
+
                 <ActionButton
                     label="Delete"
                     endpoint={`/events/${event.id}/delete`}
@@ -128,6 +135,14 @@ const EventsTable = ({ events }: Props) => {
                     color="green"
                     />
                 )}
+
+                <Link
+                    href={`/organizer/events/${event.id}/edit`}
+                    className="text-xs text-blue-400 hover:text-blue-500"
+                >
+                    Edit
+                </Link>
+
 
                 <ActionButton
                     label="Delete"

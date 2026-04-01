@@ -78,6 +78,7 @@ export const getOrganizerDashboard = async (req: AuthenticatedRequest, res: Resp
         const upcomingEvents = await prisma.event.count({
             where: {
                 organizerId,
+                deletedAt: null,
                 startTime: {
                     gte: new Date()
                 }

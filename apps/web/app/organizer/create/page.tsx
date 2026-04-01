@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { State, City } from "country-state-city";
+import { useSession } from "next-auth/react";
+import { ROLES } from "@/lib/constants";
 
 const EVENT_TAGS = [
   "MUSIC",
@@ -17,6 +19,13 @@ const EVENT_TAGS = [
 
 export default function CreateEventPage() {
   const router = useRouter();
+  const {data:session, status} = useSession();
+
+  const isOrganizer = session?.user?.role == ROLES.ORGANIZER;
+
+  if(status != "loading" && !isOrganizer) {
+    router.push("/");
+  }
 
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
