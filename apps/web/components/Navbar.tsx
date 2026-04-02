@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
-import { Calendar, LogOut } from "lucide-react";
+import { Calendar, LogOut, Ticket } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ROLES } from "@/lib/constants";
 
@@ -57,7 +57,7 @@ export default function Navbar() {
             href="/"
             className="flex items-center gap-2 text-xl font-bold group"
           >
-            <Calendar className="w-6 h-6 text-cyan-400 group-hover:rotate-12 transition-transform" />
+            <Ticket className="w-6 h-6 text-cyan-400 group-hover:rotate-12 transition-transform" />
             <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-cyan-500 bg-clip-text text-transparent">
               TicketGrid
             </span>
@@ -65,10 +65,11 @@ export default function Navbar() {
 
           {/* CENTER LINKS DESKTOP */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-
-            <Link href="/events" className={linkClasses("/events")}>
-              Events
-            </Link>
+            {session && (
+              <Link href="/events" className={linkClasses("/events")}>
+                Events
+              </Link>
+            )}
 
             {session && (
               <Link href="/dashboard" className={linkClasses("/dashboard")}>
@@ -183,13 +184,15 @@ export default function Navbar() {
             : "-translate-y-full opacity-0"
         }`}
       >
-        <Link
-          href="/events"
-          onClick={() => setMobileOpen(false)}
-          className="block text-lg text-white"
-        >
-          Events
-        </Link>
+        {session && (
+          <Link
+            href="/events"
+            onClick={() => setMobileOpen(false)}
+            className="block text-lg text-white"
+          >
+            Events
+          </Link>
+        )}
 
         {session && (<Link
           href="/dashboard"
@@ -199,7 +202,6 @@ export default function Navbar() {
           Dashboard
         </Link>)}
 
-        {/* ✅ Organizer mobile */}
         {isOrganizer && (
           <Link
             href="/organizer"

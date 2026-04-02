@@ -1,4 +1,5 @@
 import { callBackend } from "@/lib/protectedApi";
+import { notFound } from "next/navigation";
 
 export default async function EventStatsPage({ params }: any) {
   const { id } = await params;
@@ -6,6 +7,10 @@ export default async function EventStatsPage({ params }: any) {
   const data = await callBackend(
     `/api/organizer/events/${id}/stats`
   );
+
+  if(!data){
+    notFound()
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-white pt-28 pb-16 px-4 sm:px-6">

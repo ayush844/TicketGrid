@@ -10,7 +10,7 @@ export default async function OrganizerDashboard() {
   const session = await getServerSession(authOptions);
 
   if (!session) redirect("/signin");
-  if (session.user.role !== ROLES.ORGANIZER) redirect("/");
+  if (session.user.role !== ROLES.ORGANIZER) redirect("/events");
 
   const stats = await callBackend("/api/organizer/dashboard");
   const eventsData = await callBackend("/api/organizer/events");

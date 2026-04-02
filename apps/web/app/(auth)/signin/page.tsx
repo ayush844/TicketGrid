@@ -20,7 +20,7 @@ export default function Signin() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/");
+      router.push("/events");
     }
   }, [status, router]);
 
@@ -53,7 +53,7 @@ export default function Signin() {
 
       toast.success("Signed in successfully");
 
-      router.push("/");
+      router.push("/events");
       
     } catch (error) {
       console.error("Signin error:", error);

@@ -1,6 +1,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { createBackendToken } from "./backendToken";
+import { notFound } from "next/navigation";
 
 type HttpMethods = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -15,6 +16,7 @@ export const callBackend = async (
 ) => {
   const session = await getServerSession(authOptions);
 
+  // 🔒 Not logged in
   if (!session) {
     throw new Error("UNAUTHORIZED");
   }
@@ -38,14 +40,31 @@ export const callBackend = async (
     }
   );
 
+  console.log("Backend response status:", response.status);
+
+  // ❌ Not found → trigger global 404 page
+  if (response.status === 404) {
+    notFound();
+  }
+
+  // 🔒 Unauthorized (token expired / invalid)
   if (response.status === 401) {
     throw new Error("UNAUTHORIZED");
   }
 
+  // ❌ Other errors
   if (!response.ok) {
-    const error = await response.json();
-    console.error("Backend error:", error);
-    throw new Error(error.message || "Internal Server Error");
+    let errorMessage = "Internal Server Error";
+
+    try {
+      const error = await response.json();
+      errorMessage = error?.message || errorMessage;
+    } catch {
+      // fallback if no JSON
+    }
+
+    console.error("Backend error:", errorMessage);
+    throw new Error(errorMessage);
   }
 
   return response.json();

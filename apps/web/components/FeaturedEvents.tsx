@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
-import { featuredEvents } from '../data/mock';
-import defaultBg from "../assets/defaultBG.jpeg"
+import { getFeaturedEvents } from '../data/mock';
+import defaultBg from "../assets/defaultBG.jpeg";
 import Link from 'next/link';
 
 interface iEvent {
@@ -16,7 +16,6 @@ interface iEvent {
   price: number;
   imageUrl: string | null;
   tags: string[];
-
   location: {
     city: string;
     state: string;
@@ -25,9 +24,9 @@ interface iEvent {
   };
 }
 
+/* ---------------- EVENT CARD ---------------- */
 
 export const EventCard = ({ event }: { event: iEvent }) => {
-
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
 
@@ -49,7 +48,7 @@ export const EventCard = ({ event }: { event: iEvent }) => {
 
   return (
     <Card className="group relative overflow-hidden bg-slate-900/50 border border-white/10 hover:border-cyan-500/50 transition-all duration-500 cursor-pointer backdrop-blur-sm hover-lift animate-fade-in-up">
-      
+
       <div className="relative h-56 overflow-hidden">
         <img 
           src={event.imageUrl || defaultBg.src} 
@@ -107,10 +106,54 @@ export const EventCard = ({ event }: { event: iEvent }) => {
   );
 };
 
+const EventCardSkeleton = () => {
+  return (
+    <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden animate-pulse">
+      <div className="h-56 bg-white/10" />
+      <div className="p-6 space-y-4">
+        <div className="h-5 bg-white/10 rounded w-3/4" />
+        <div className="h-4 bg-white/10 rounded w-1/2" />
+        <div className="h-10 bg-white/10 rounded" />
+      </div>
+    </div>
+  );
+};
+
+const FeaturedEventsSkeleton = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
+      {[...Array(6)].map((_, i) => (
+        <EventCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+};
+
+const FeaturedEventsList = async () => {
+  const events = await getFeaturedEvents();
+
+  if (!events.length) {
+    return (
+      <div className="text-center py-20 text-slate-400">
+        No events found
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
+      {events.map((event: iEvent) => (
+        <EventCard key={event.id} event={event} />
+      ))}
+    </div>
+  );
+};
+
 const FeaturedEvents = () => {
   return (
-    <section id="events" className="relative py-16 sm:py-20 lg:py-24 bg-slate-950">
+    <section className="relative py-16 sm:py-20 lg:py-24 bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">
             Upcoming Events
@@ -120,21 +163,23 @@ const FeaturedEvents = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
-          {featuredEvents.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
+        {/* ✅ Suspense Skeleton */}
+        <Suspense fallback={<FeaturedEventsSkeleton />}>
+          <FeaturedEventsList />
+        </Suspense>
 
         <div className="text-center px-4">
-          <Button 
-            size="lg"
-            className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border-2 border-white/10 hover:border-cyan-500 text-white px-6 sm:px-8 py-5 sm:py-6 transition-all duration-300"
-          >
-            View All Events
-            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
-          </Button>
+          <Link href="/events">
+            <Button 
+              size="lg"
+              className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border-2 border-white/10 hover:border-cyan-500 text-white px-6 sm:px-8 py-5 sm:py-6"
+            >
+              View All Events
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+            </Button>
+          </Link>
         </div>
+
       </div>
     </section>
   );

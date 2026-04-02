@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { Calendar, ArrowRight, Sparkles } from 'lucide-react';
+import HomeButtons from './HomeButton';
 
 const Hero = () => {
   return (
@@ -37,8 +38,8 @@ const Hero = () => {
           </p>
 
           {/* CTA Buttons with staggered animation */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-4">
-            <Button 
+          {/* <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-4">
+            <Button            
               size="lg"
               className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-up animation-delay-600"
             >
@@ -53,7 +54,9 @@ const Hero = () => {
               Create Event
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </Button>
-          </div>
+          </div> */}
+
+          <HomeButtons />
 
           {/* Stats with animation */}
           <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto pt-6 sm:pt-8 border-t border-white/10 px-4 animate-fade-in-up animation-delay-800">

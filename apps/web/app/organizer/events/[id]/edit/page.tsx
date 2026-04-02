@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, notFound } from "next/navigation";
 import { State, City } from "country-state-city";
 import { useSession } from "next-auth/react";
 import { ROLES } from "@/lib/constants";
@@ -26,7 +26,7 @@ export default function EditEventPage() {
     const isOrganizer = session?.user?.role == ROLES.ORGANIZER;
 
     if(status != "loading" && !isOrganizer) {
-        router.push("/");
+        router.push("/events");
     }
 
 
@@ -53,6 +53,10 @@ export default function EditEventPage() {
         const data = await res.json();
 
         const event = data.event;
+
+        if(!event){
+          notFound();
+        }
 
         setForm({
             title: event.title,

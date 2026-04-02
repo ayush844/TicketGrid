@@ -1,5 +1,6 @@
 import React from 'react';
-import { Ticket, Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
+import { Ticket } from 'lucide-react';
+import { Linkedin, Github, Twitter } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -30,24 +31,39 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Social Icons */}
-      <div className="flex gap-3">
-        {[Facebook, Twitter, Instagram, Linkedin].map((Icon, index) => (
-          <a
-            key={index}
-            href="#"
-            className="group w-11 h-11 flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/50 hover:bg-slate-800 transition-all duration-300"
-          >
-            <Icon className="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transition-colors duration-300" />
-          </a>
-        ))}
-      </div>
+    {/*  Social Icons  */}
+    <div className="flex gap-3">
+      {[
+        {
+          Icon: Linkedin,
+          link: "https://www.linkedin.com/in/ayush-sharma-217335250/",
+        },
+        {
+          Icon: Github,
+          link: "https://github.com/ayush844",
+        },
+        {
+          Icon: Twitter,
+          link: "https://x.com/ayushuprush",
+        },
+      ].map(({ Icon, link }, index) => (
+        <a
+          key={index}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group w-11 h-11 flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/50 hover:bg-slate-800 transition-all duration-300"
+        >
+          <Icon className="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transition-colors duration-300" />
+        </a>
+      ))}
+    </div>
     </div>
 
     {/* Bottom bar */}
     <div className="mt-10 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
       <p>© {currentYear} TicketGrid. All rights reserved.</p>
-      <p>Made with passion by Ayush Sharma</p>
+      <p>Made with laptop by Ayush Sharma</p>
     </div>
 
   </div>

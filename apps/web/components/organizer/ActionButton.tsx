@@ -12,9 +12,7 @@ type Props = {
 export default function ActionButton({ label, endpoint, color }: Props) {
   const router = useRouter();
 
-  const handleClick = async () => {
-    const confirmAction = confirm(`Are you sure you want to ${label}?`);
-    if (!confirmAction) return;
+  const handleAction = async () => {
     try {
       const res = await fetch(`/api${endpoint}`, {
         method: "PATCH",
@@ -24,11 +22,24 @@ export default function ActionButton({ label, endpoint, color }: Props) {
         throw new Error("Action failed");
       }
 
-      router.refresh(); // 🔥 refresh server data
-
+      toast.success(`${label} successful`);
+      router.refresh();
     } catch (err: any) {
       toast.error(err.message);
     }
+  };
+
+  const handleClick = () => {
+    toast(`Are you sure you want to ${label}?`, {
+      action: {
+        label: "Confirm",
+        onClick: handleAction,
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
   };
 
   const colorClass =
@@ -37,10 +48,7 @@ export default function ActionButton({ label, endpoint, color }: Props) {
       : "text-red-400 hover:text-red-300";
 
   return (
-    <button
-      onClick={handleClick}
-      className={`text-xs ${colorClass}`}
-    >
+    <button onClick={handleClick} className={`text-xs ${colorClass}`}>
       {label}
     </button>
   );

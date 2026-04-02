@@ -1,5 +1,12 @@
 // Mock data for TicketGrid Landing Page
 
+import { getUpcomingEvents } from "@/lib/api";
+
+export const getFeaturedEvents = async () => {
+  const data = await getUpcomingEvents(1, 6);
+  return data?.events || [];
+};
+
 export const featuredEvents = [
   {
     id: "event-1",

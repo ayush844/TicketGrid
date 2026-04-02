@@ -661,7 +661,6 @@ export const getPublicEventById = async (req: Request, res: Response) => {
             {
                 where: {
                     id: id,
-                    isPublished: true,
                     deletedAt: null
                 },
                 include: {

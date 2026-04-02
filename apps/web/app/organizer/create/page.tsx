@@ -25,7 +25,7 @@ export default function CreateEventPage() {
   const isOrganizer = session?.user?.role == ROLES.ORGANIZER;
 
   if(status != "loading" && !isOrganizer) {
-    router.push("/");
+    router.push("/events");
   }
 
   const [loading, setLoading] = useState(false);
@@ -167,6 +167,7 @@ export default function CreateEventPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-3xl bg-white/[0.04] backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-10 space-y-8"
       >
+      <fieldset disabled={loading} className="space-y-6">
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Create Event</h1>
@@ -375,10 +376,13 @@ export default function CreateEventPage() {
             />
           </div>
             {preview && (
-            <img
-                src={preview}
-                className="w-full h-48 object-cover rounded-xl border border-slate-700"
-            />
+            <div className=" relative">
+              <img
+                  src={preview}
+                  className="w-full h-48 object-cover rounded-xl border border-slate-700"
+              />
+              <button type="button" onClick={() => {setFile(null); setPreview(null);}} className=" absolute top-2 right-2 bg-black/60 text-white px-2 py-1 text-xs rounded hover:cursor-pointer">Remove</button>
+            </div>
             )}
           {/* Image Upload */}
           <div className="space-y-2">
@@ -403,6 +407,7 @@ export default function CreateEventPage() {
             {loading ? "Creating Event..." : "Create Event"}
           </button>
         </div>
+        </fieldset>
       </form>
     </main>
   );

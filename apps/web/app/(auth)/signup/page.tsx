@@ -22,7 +22,7 @@ const Signup = () => {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/");
+      router.push("/events");
     }
   }, [status, router]);
 
@@ -72,7 +72,7 @@ const Signup = () => {
         password,
         redirect: false
       });
-      router.push("/");
+      router.push("/events");
 
     } catch (error) {
       console.error("Signup error:", error);
