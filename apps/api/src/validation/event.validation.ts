@@ -29,6 +29,8 @@ export const createEventSchema = z.object({
         addressLine: z.string().min(3)
     }),
 
+    price: z.coerce.number().nonnegative(),
+
     imageUrl: z.url().optional()
 
 })
@@ -65,6 +67,6 @@ export const updateEventSchema = z.object({
 
     imageUrl: z.url().optional(),
 
-    price: z.number().optional()
+    price: z.coerce.number().nonnegative().optional(),
 
 })

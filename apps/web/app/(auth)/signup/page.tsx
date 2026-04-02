@@ -1,21 +1,30 @@
 "use client"
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Mail, Lock, User, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ROLES, Roles } from "@/lib/constants";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const Signup = () => {
   const [role, setRole] = useState<Roles>(ROLES.USER);
   const [loading, setLoading] = useState(false);
+    const { data: session, status } = useSession();
+  
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/events");
+    }
+  }, [status, router]);
 
   const handleSignup = async(e: React.FormEvent)=>{
     e.preventDefault();
@@ -25,12 +34,12 @@ const Signup = () => {
     const confirmPassword = confirmPasswordRef.current?.value;
 
     if(!email || !password || !confirmPassword ){
-      alert("Please fill all the fields");
+      toast.error("Please fill all the fields");
       return;
     }
 
     if(password !== confirmPassword){
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -52,22 +61,22 @@ const Signup = () => {
       const data = await response.json();
 
       if(!response.ok){
-        alert(data.message || "Signup failed");
+        toast.error(data.message || "Signup failed");
         return;
       }
 
-      alert("Signup successfull, please sign in");
+      toast.success("Account created successfully. Signing you in...");
 
       await signIn("credentials", {
         email,
         password,
         redirect: false
       });
-      router.push("/");
+      router.push("/events");
 
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally{
       setLoading(false);
     }

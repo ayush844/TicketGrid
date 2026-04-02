@@ -107,10 +107,10 @@ model Event{
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
+  @@index([isPublished, deletedAt, startTime])
   @@index([organizerId])
-  @@index([status])
-  @@index([startTime])
   @@index([locationId])
+  @@index([status])
 }
 
 model Booking {
@@ -150,6 +150,7 @@ model Ticket {
   eventId String
   userId String
   createdAt DateTime @default(now())
+  qrCode String?
   booking Booking @relation(fields: [bookingId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
   user User @relation(fields: [userId], references: [id])

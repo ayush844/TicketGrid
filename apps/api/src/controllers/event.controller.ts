@@ -11,7 +11,7 @@ import { publishLog } from "../services/log.publisher.js";
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
     try {
         
-        const {title, description, startTime, endTime, capacity, tags, location} = req.body;
+        const {title, description, startTime, endTime, capacity, tags, location, imageUrl, price} = req.body;
 
         if(new Date(startTime) >= new Date(endTime)){
             return res.status(400).json({
@@ -36,7 +36,9 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
                     capacity,
                     organizerId: req.user!.userId,
                     locationId: createdLocation.id,
-                    tags
+                    tags,
+                    imageUrl,
+                    price
                 },
                 include: {
                     location: true
@@ -99,7 +101,7 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
             })
         };
 
-        const {title, description, startTime, endTime, capacity, tags, location, price} = req.body;
+        const {title, description, startTime, endTime, capacity, tags, location, price, imageUrl} = req.body;
 
         if(startTime && endTime){
             if(new Date(endTime) <= new Date(startTime)){
@@ -133,7 +135,8 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
                     tags,
                     price,
                     startTime: startTime ? new Date(startTime) : existingEvent.startTime,
-                    endTime: endTime ? new Date(endTime) : existingEvent.endTime
+                    endTime: endTime ? new Date(endTime) : existingEvent.endTime,
+                    imageUrl
                 },
                 include: {
                     location: true
@@ -466,6 +469,126 @@ export const getPublicEvents = async (req: Request, res: Response) => {
     }
 }
 
+export const getUpcomingEvents = async (req: Request, res: Response) => {
+  try {
+    const now = new Date();
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const cacheKey = `events:upcoming:page=${page}:limit=${limit}`;
+
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log("Serving upcoming from cache");
+      return res.json(JSON.parse(cached));
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [events, total] = await Promise.all([
+      prisma.event.findMany({
+        where: {
+          isPublished: true,
+          deletedAt: null,
+          startTime: { gte: now }
+        },
+        skip,
+        take: limit,
+        orderBy: { startTime: "asc" },
+        include: {
+          location: true,
+          organizer: {
+            select: { id: true, email: true }
+          }
+        }
+      }),
+      prisma.event.count({
+        where: {
+          isPublished: true,
+          deletedAt: null,
+          startTime: { gte: now }
+        }
+      })
+    ]);
+
+    const response = {
+      events,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+
+    return res.json(response);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getPastEvents = async (req: Request, res: Response) => {
+  try {
+    const now = new Date();
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const cacheKey = `events:past:page=${page}:limit=${limit}`;
+
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log("Serving past from cache");
+      return res.json(JSON.parse(cached));
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [events, total] = await Promise.all([
+      prisma.event.findMany({
+        where: {
+          isPublished: true,
+          deletedAt: null,
+          startTime: { lt: now }
+        },
+        skip,
+        take: limit,
+        orderBy: { startTime: "desc" },
+        include: {
+          location: true,
+          organizer: {
+            select: { id: true, email: true }
+          }
+        }
+      }),
+      prisma.event.count({
+        where: {
+          isPublished: true,
+          deletedAt: null,
+          startTime: { lt: now }
+        }
+      })
+    ]);
+
+    const response = {
+      events,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+
+    return res.json(response);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const getPublicEventBySlug = async (req: Request, res: Response) => {
     try {
         const {slug} = req.params;
@@ -524,5 +647,49 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
     }
 }
 
+export const getPublicEventById = async (req: Request, res: Response) => {
+    try {
+        const {id} = req.params;
 
+        if(!id || Array.isArray(id)){
+            return res.status(400).json({
+                message: "No id provided"
+            });
+        }
+
+        const event = await prisma.event.findFirst(
+            {
+                where: {
+                    id: id,
+                    deletedAt: null
+                },
+                include: {
+                    location: true,
+                    organizer: {
+                        select: {
+                            id: true,
+                            email: true
+                        }
+                    }
+                }
+            }
+        )
+
+        if(!event){
+            return res.status(404).json({
+                message: "No such event exist"
+            });
+        }
+
+        return res.json({
+            event
+        })
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
 

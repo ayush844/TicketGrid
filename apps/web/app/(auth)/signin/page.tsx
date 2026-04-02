@@ -1,20 +1,29 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Mail, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function Signin() {
 
   const [loading, setLoading] = useState(false);
 
+  const { data: session, status } = useSession();
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/events");
+    }
+  }, [status, router]);
+
 
   const handleSignIn = async(e: React.FormEvent)=>{
     e.preventDefault();
@@ -23,7 +32,7 @@ export default function Signin() {
     const password = passwordRef.current?.value;
 
     if(!email || !password){
-      alert("Please fill all the fields");
+      toast.error("Please fill all the fields");
       return;
     }
 
@@ -38,15 +47,17 @@ export default function Signin() {
       });
 
       if(result?.error){
-        alert("Invalid email or password");
+        toast.error("Invalid email or password");
         return;
       }
 
-      router.push("/");
+      toast.success("Signed in successfully");
+
+      router.push("/events");
       
     } catch (error) {
       console.error("Signin error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally{
       setLoading(false);
     }

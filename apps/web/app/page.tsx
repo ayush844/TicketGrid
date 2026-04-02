@@ -3,17 +3,18 @@ import ForOrganizers from "@/components/ForOrganizers";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import WhyChoose from "@/components/WhyChoose";
-import { callBackend } from "@/lib/api";
+import { getEvents } from "@/lib/api";
+import { callBackend } from "@/lib/protectedApi";
 
 export default async function Home() {
 
-  const data1 = await callBackend("/test/less-protected");
-  console.log("Data from less-protected route:", data1);
+  // const data1 = await callBackend("/test/less-protected");
+  // console.log("Data from less-protected route:", data1);
 
 
-  const data2 = await callBackend("/test/protected");
-  console.log("Data from protected route:", data2);
-
+  // const data2 = await callBackend("/test/protected");
+  // console.log("Data from protected route:", data2);
+  getEvents();
   return (
     <div className=" min-h-screen">
       <Hero />

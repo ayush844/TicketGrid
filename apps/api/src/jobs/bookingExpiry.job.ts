@@ -5,7 +5,7 @@ import { expireBookings } from "../config/cleanupBooking.js";
 
 export const startBookingExpiry = () => {
     cron.schedule("*/10 * * * *", async () => {
-        console.log("Running ooking expiry job...");
+        console.log("Running booking expiry job...");
         try {
             await expireBookings();
         } catch (error) {

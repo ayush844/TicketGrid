@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { Users, TrendingUp, BarChart3, Zap, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 const features = [
   {
@@ -62,7 +63,7 @@ const ForOrganizers = () => {
                 );
               })}
             </div>
-
+            <Link href="/organizer/create">
             <Button 
               size="lg"
               className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white px-6 sm:px-8 py-5 sm:py-6 shadow-lg transition-all duration-300"
@@ -70,6 +71,7 @@ const ForOrganizers = () => {
               Start Hosting
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </Button>
+            </Link>
           </div>
 
           {/* Right Content - Stats */}
