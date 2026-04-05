@@ -19,7 +19,6 @@ export default async function OrganizerDashboard() {
     <main className="min-h-screen bg-slate-950 text-white pt-28 pb-16 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto space-y-12">
 
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">
@@ -40,7 +39,6 @@ export default async function OrganizerDashboard() {
           </a>
         </div>
 
-        {/* Stats */}
         <section className="border border-white/10 rounded-xl bg-white/5 p-5">
           <h2 className="text-sm font-medium text-slate-400 mb-4">
             Overview
@@ -49,7 +47,6 @@ export default async function OrganizerDashboard() {
           <StatsCards stats={stats} />
         </section>
 
-        {/* Events */}
         <section className="border border-white/10 rounded-xl bg-white/5 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-medium text-slate-400">

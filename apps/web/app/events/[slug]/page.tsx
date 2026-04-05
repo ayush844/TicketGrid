@@ -42,7 +42,6 @@ export default async function Page({
 }) {
   const { slug } = await params;
 
-//   const data = await getEvent(slug);
     const data = await callPublicApi(`/events/${slug}`)
 
   const event = data.event;

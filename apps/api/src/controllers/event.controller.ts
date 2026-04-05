@@ -77,7 +77,6 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
         const {id} = req.params;
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -176,7 +175,6 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
 
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -254,7 +252,6 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
         const {id} = req.params;
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -318,7 +315,6 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
         const {id} = req.params;
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -389,7 +385,6 @@ export const getPublicEvents = async (req: Request, res: Response) => {
         const cached = await redis.get(cacheKey);
         
         if(cached){
-            console.log("Serving from cache");
             return res.json(JSON.parse(cached));
         }
 
@@ -481,7 +476,6 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("Serving upcoming from cache");
       return res.json(JSON.parse(cached));
     }
 
@@ -541,7 +535,6 @@ export const getPastEvents = async (req: Request, res: Response) => {
 
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("Serving past from cache");
       return res.json(JSON.parse(cached));
     }
 
@@ -605,7 +598,6 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
         const cached = await redis.get(cacheKey);
         
         if(cached){
-            console.log("Serving from cache");
             return res.json(JSON.parse(cached));
         }
 

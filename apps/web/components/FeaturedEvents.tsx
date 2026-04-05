@@ -24,8 +24,6 @@ interface iEvent {
   };
 }
 
-/* ---------------- EVENT CARD ---------------- */
-
 export const EventCard = ({ event }: { event: iEvent }) => {
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -163,7 +161,6 @@ const FeaturedEvents = () => {
           </p>
         </div>
 
-        {/* ✅ Suspense Skeleton */}
         <Suspense fallback={<FeaturedEventsSkeleton />}>
           <FeaturedEventsList />
         </Suspense>

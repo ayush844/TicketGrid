@@ -31,7 +31,6 @@ const ForOrganizers = () => {
     <section id="for-organizers" className="relative py-16 sm:py-20 lg:py-24 bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left Content */}
           <div className="px-4 lg:px-0">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
               For Event
@@ -74,7 +73,6 @@ const ForOrganizers = () => {
             </Link>
           </div>
 
-          {/* Right Content - Stats */}
           <div className="grid grid-cols-2 gap-4 sm:gap-6 px-4 lg:px-0">
             {[
               { value: '95%', label: 'Satisfaction' },

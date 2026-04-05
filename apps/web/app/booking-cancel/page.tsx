@@ -39,21 +39,6 @@ export default function BookingCancelPage() {
 
         <div className="flex flex-col gap-3">
 
-          {/* {session ? (
-            <Link
-              href="/"
-              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 font-semibold transition"
-            >
-              Go Back to Home
-            </Link>
-          ) : (
-            <Link
-              href="/signin"
-              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 font-semibold transition"
-            >
-              Sign In to Continue
-            </Link>
-          )} */}
 
           <Link
             href="/"

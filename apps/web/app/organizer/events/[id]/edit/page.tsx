@@ -46,7 +46,6 @@ export default function EditEventPage() {
         ? City.getCitiesOfState("IN", selectedState.isoCode)
         : [];
 
-    // 🟢 STEP 1: Fetch existing event
     useEffect(() => {
         const fetchEvent = async () => {
         const res = await fetch(`/api/events/${id}`);
@@ -92,13 +91,11 @@ if (!form) {
     <main className="min-h-screen bg-slate-950 px-4 pt-28 flex justify-center">
       <div className="w-full max-w-3xl space-y-6 animate-pulse">
 
-        {/* Header */}
         <div className="space-y-2">
           <div className="h-8 w-48 bg-slate-800 rounded"></div>
           <div className="h-4 w-64 bg-slate-800 rounded"></div>
         </div>
 
-        {/* Cards */}
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
@@ -118,7 +115,6 @@ if (!form) {
           </div>
         ))}
 
-        {/* Button */}
         <div className="h-12 w-full bg-slate-800 rounded-xl"></div>
       </div>
     </main>
@@ -127,7 +123,6 @@ if (!form) {
 
 
 
-  // 🟢 STEP 2: Submit (UPDATE)
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -144,7 +139,6 @@ if (!form) {
         },
     };
 
-      // 🔹 UPDATE event data
       const updateRes = await fetch(`/api/events/${id}`, {
         method: "PUT",
         body: JSON.stringify(cleanedForm),
@@ -159,7 +153,6 @@ if (!form) {
         throw new Error(updated.message);
       }
 
-      // 🔹 If new image selected → upload
       if (file) {
         const presignRes = await fetch("/api/uploads/presigned-url", {
           method: "POST",
@@ -179,7 +172,6 @@ if (!form) {
           body: file,
         });
 
-        // 🔹 update imageUrl
         await fetch(`/api/events/${id}`, {
           method: "PUT",
           body: JSON.stringify({ imageUrl: fileUrl }),
@@ -205,7 +197,6 @@ return (
       className="w-full max-w-3xl space-y-6"
     >
     <fieldset disabled={loading} className="space-y-6">
-      {/* Header */}
       <div className="space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">Edit Event</h1>
         <p className="text-slate-400 text-sm">
@@ -213,7 +204,6 @@ return (
         </p>
       </div>
 
-      {/* -------- BASIC INFO -------- */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold">Basic Info</h2>
 
@@ -246,7 +236,6 @@ return (
         </div>
       </div>
 
-      {/* -------- DATE & PRICING -------- */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold">Date & Pricing</h2>
 
@@ -305,7 +294,6 @@ return (
         </div>
       </div>
 
-      {/* -------- TAGS -------- */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold">Tags</h2>
 
@@ -346,7 +334,6 @@ return (
         </div>
       </div>
 
-      {/* -------- LOCATION -------- */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold">Location</h2>
 
@@ -417,7 +404,6 @@ return (
         />
       </div>
 
-      {/* -------- IMAGE -------- */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold">Event Banner</h2>
 
@@ -438,7 +424,6 @@ return (
         />
       </div>
 
-      {/* -------- SUBMIT -------- */}
       <button
         disabled={loading}
         className={`w-full py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${

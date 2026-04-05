@@ -46,13 +46,11 @@ export default function Navbar() {
 
   return (
     <>
-      {/* NAVBAR */}
       <nav className="fixed top-0 w-full z-[60]">
         <div className="absolute inset-0 backdrop-blur-xl bg-white/5 border-b border-white/10"></div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-          {/* LOGO */}
           <Link
             href="/"
             className="flex items-center gap-2 text-xl font-bold group"
@@ -63,7 +61,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* CENTER LINKS DESKTOP */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {session && (
               <Link href="/events" className={linkClasses("/events")}>
@@ -87,7 +84,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* RIGHT SIDE */}
           <div className="flex items-center gap-4">
             {status === "loading" ? null : !session ? (
               <div className="hidden md:flex items-center gap-4">
@@ -120,7 +116,6 @@ export default function Navbar() {
                       {session.user.email}
                     </p>
 
-                    {/* Organizer quick link inside dropdown */}
                     {isOrganizer && (
                       <Link
                         href="/organizer"
@@ -141,7 +136,6 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* HAMBURGER */}
             <button
               className="md:hidden relative w-6 h-6 z-[70]"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -166,7 +160,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* OVERLAY */}
       <div
         className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-[40] md:hidden ${
           mobileOpen
@@ -176,7 +169,6 @@ export default function Navbar() {
         onClick={() => setMobileOpen(false)}
       />
 
-      {/* MOBILE MENU */}
       <div
         className={`fixed top-0 left-0 w-full bg-slate-900 backdrop-blur-xl border-b border-white/10 px-6 pt-24 pb-6 space-y-6 transform transition-all duration-300 z-[50] md:hidden ${
           mobileOpen

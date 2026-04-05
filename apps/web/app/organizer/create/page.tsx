@@ -63,7 +63,6 @@ export default function CreateEventPage() {
             return;
         }
 
-        // Optional: size check (e.g. 5MB)
         if (file.size > 5 * 1024 * 1024) {
             toast.error("Image must be less than 5MB");
             return;
@@ -133,7 +132,6 @@ export default function CreateEventPage() {
           method: "PUT",
           body: file
         });
-        console.log("File uploaded to storage", fileUrl);
         const updateRes = await fetch(`/api/events/${eventId}`, {
         method: "PUT",
         body: JSON.stringify({
@@ -145,7 +143,6 @@ export default function CreateEventPage() {
         });
 
         const updateData = await updateRes.json();
-        console.log("UPDATE RESPONSE:", updateData);
 
         if (!updateRes.ok) {
         throw new Error(updateData.message || "Failed to update image");
@@ -168,7 +165,6 @@ export default function CreateEventPage() {
         className="w-full max-w-3xl bg-white/[0.04] backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-10 space-y-8"
       >
       <fieldset disabled={loading} className="space-y-6">
-        {/* Header */}
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Create Event</h1>
           <p className="text-slate-400 text-sm">
@@ -176,10 +172,8 @@ export default function CreateEventPage() {
           </p>
         </div>
 
-        {/* Section Wrapper */}
         <div className="grid gap-6">
 
-          {/* Title */}
           <div className="space-y-2">
             <label className="text-sm text-slate-300">Event Title</label>
             <input
@@ -191,7 +185,6 @@ export default function CreateEventPage() {
             />
           </div>
 
-          {/* Description */}
           <div className="space-y-2">
             <label className="text-sm text-slate-300">Description</label>
             <textarea
@@ -203,7 +196,6 @@ export default function CreateEventPage() {
             />
           </div>
 
-          {/* Date */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs text-slate-400">Start Time</label>
@@ -225,7 +217,6 @@ export default function CreateEventPage() {
             </div>
           </div>
 
-          {/* Capacity & Price */}
           <div className="grid grid-cols-2 gap-4">
             <input
               required
@@ -243,7 +234,6 @@ export default function CreateEventPage() {
             />
           </div>
 
-          {/* Tags */}
           <div className="space-y-3">
             <label className="text-sm text-slate-300">Tags (max 3)</label>
             <div className="flex flex-wrap gap-2">
@@ -277,11 +267,9 @@ export default function CreateEventPage() {
             </div>
           </div>
 
-          {/* Location Section */}
           <div className="border-t border-white/10 pt-6 space-y-4">
             <h2 className="text-lg font-semibold">Location</h2>
 
-            {/* Country */}
             <div className="space-y-1">
               <input
                 value="India"
@@ -293,7 +281,6 @@ export default function CreateEventPage() {
               </p>
             </div>
 
-            {/* State & City */}
             <div className="grid grid-cols-2 gap-4">
               <select
                 required
@@ -341,7 +328,6 @@ export default function CreateEventPage() {
               </select>
             </div>
 
-            {/* Address */}
             <input
               required
               placeholder="Full Address"
@@ -358,7 +344,6 @@ export default function CreateEventPage() {
             />
 
 
-            {/* Postal Code */}
             <input
                 required
                 type="text"
@@ -384,7 +369,6 @@ export default function CreateEventPage() {
               <button type="button" onClick={() => {setFile(null); setPreview(null);}} className=" absolute top-2 right-2 bg-black/60 text-white px-2 py-1 text-xs rounded hover:cursor-pointer">Remove</button>
             </div>
             )}
-          {/* Image Upload */}
           <div className="space-y-2">
             <label className="text-sm text-slate-300">Event Banner</label>
             <input
@@ -395,7 +379,6 @@ export default function CreateEventPage() {
             />
           </div>
 
-          {/* Submit */}
           <button
             disabled={loading}
             className={`w-full py-3 rounded-xl font-medium transition shadow-lg ${
