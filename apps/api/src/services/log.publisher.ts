@@ -5,7 +5,7 @@ export const publishLog = (data: any) => {
     try {
         const channel = getChannel();
 
-        channel.sendToQueue("activity_logs", Buffer.from(JSON.stringify(data)), {persistent: true});
+        channel.sendToQueue("activity_logs", Buffer.from(JSON.stringify(data)), {persistent: true, headers: {"x-retries": 0}});
     } catch (error) {
         console.error("Failed to publish log", error);
     }

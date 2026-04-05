@@ -6,6 +6,7 @@ import { redis } from "../config/redis.js";
 import { clearListingCache } from "../utils/cacheHelper.utils.js";
 import { createLog } from "../services/log.service.js";
 import { publishLog } from "../services/log.publisher.js";
+import { LOG_ACTIONS } from "../constants/logActions.js";
 
 
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
@@ -51,7 +52,7 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "CREATE_EVENT",
+            action: LOG_ACTIONS.CREATE_EVENT,
             entityType: "EVENT",
             entityId: event.id,
             metadata: {
@@ -151,7 +152,7 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "UPDATE_EVENT",
+            action: LOG_ACTIONS.UPDATE_EVENT,
             entityType: "EVENT",
             entityId: updatedEvent.id,
             metadata: {
@@ -230,7 +231,7 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "PUBLISH_EVENT",
+            action: LOG_ACTIONS.PUBLISH_EVENT,
             entityType: "EVENT",
             entityId: updated.id,
             metadata: {
@@ -293,7 +294,7 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "CANCEL_EVENT",
+            action: LOG_ACTIONS.CANCEL_EVENT,
             entityType: "EVENT",
             entityId: updated.id,
             metadata: {
@@ -354,7 +355,7 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "DELETE_EVENT",
+            action: LOG_ACTIONS.DELETE_EVENT,
             entityType: "EVENT",
             entityId: delId,
             metadata: {
