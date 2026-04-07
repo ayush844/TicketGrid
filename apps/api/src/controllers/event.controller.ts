@@ -3,7 +3,7 @@ import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 import { generateSlug } from "../utils/slug.utils.js";
 import { prisma } from "../config/prisma.js";
 import { redis } from "../config/redis.js";
-import { clearListingCache } from "../utils/cacheHelper.utils.js";
+import { clearListingCache, invalidateEventCache } from "../utils/cacheHelper.utils.js";
 import { createLog } from "../services/log.service.js";
 import { publishLog } from "../services/log.publisher.js";
 import { LOG_ACTIONS } from "../constants/logActions.js";
@@ -47,7 +47,7 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
             });
         });
 
-        await clearListingCache();
+        await invalidateEventCache();
 
         publishLog({
             userId: req.user!.userId,
@@ -144,9 +144,11 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
             });
         });
 
-        await redis.del(`event:slug:${existingEvent.slug}`);
-        await redis.del(`event:slug:${updatedEvent.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(existingEvent.slug);
+
+        if(existingEvent.slug != updatedEvent.slug){
+            await invalidateEventCache(updatedEvent.slug);
+        }
 
         publishLog({
             userId: req.user!.userId,
@@ -223,8 +225,7 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
             }
         })
 
-        await redis.del(`event:slug:${updated.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(updated.slug);
 
         publishLog({
             userId: req.user!.userId,
@@ -285,8 +286,7 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
             }
         });
 
-        await redis.del(`event:slug:${updated.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(updated.slug);
 
         publishLog({
             userId: req.user!.userId,
@@ -345,8 +345,7 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
             }
         });
 
-        await redis.del(`event:slug:${updated.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(updated.slug);
 
         publishLog({
             userId: req.user!.userId,
@@ -380,7 +379,7 @@ export const getPublicEvents = async (req: Request, res: Response) => {
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 10;
 
-        const cacheKey = `events:page=${page}:limit=${limit}`;
+        const cacheKey = `events:list:page=${page}:limit=${limit}`;
 
         const cached = await redis.get(cacheKey);
         
@@ -453,7 +452,7 @@ export const getPublicEvents = async (req: Request, res: Response) => {
             }
         }
 
-        await redis.set(cacheKey, JSON.stringify(responseData), "EX", 60); // Cache for 60 seconds
+        await redis.setex(cacheKey, 60, JSON.stringify(responseData));
 
         return res.json(responseData);
 
@@ -514,7 +513,7 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
       totalPages: Math.ceil(total / limit)
     };
 
-    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+    await redis.setex(cacheKey, 60, JSON.stringify(response));
 
     return res.json(response);
 
@@ -573,7 +572,7 @@ export const getPastEvents = async (req: Request, res: Response) => {
       totalPages: Math.ceil(total / limit)
     };
 
-    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+    await redis.setex(cacheKey, 60, JSON.stringify(response));
 
     return res.json(response);
 
@@ -593,7 +592,7 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
             });
         }
 
-        const cacheKey = `event:slug:${slug}`;
+        const cacheKey = `event:detail:slug=${slug}`;
 
         const cached = await redis.get(cacheKey);
         
@@ -626,7 +625,7 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
             });
         }
 
-        await redis.set(cacheKey, JSON.stringify({event}), "EX", 120);
+        await redis.setex(cacheKey, 300, JSON.stringify({event}));
 
         return res.json({
             event
