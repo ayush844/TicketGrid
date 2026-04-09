@@ -10,6 +10,7 @@ import paymentRoutes from "./routes/payment.route.js";
 import webhookRoutes from "./routes/webhook.route.js";
 import userBookingRoutes from "./routes/userBooking.route.js";
 import orgainizerStatsRoutes from "./routes/organizerStats.routes.js";
+import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 
 const app = express();
@@ -19,6 +20,8 @@ app.use("/webhooks", express.raw({ type: "application/json" }), webhookRoutes);
 app.use(cors())
 
 app.use(express.json());
+
+app.use(globalLimiter);
 
 app.use("/", healthRoute);
 
