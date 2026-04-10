@@ -15,6 +15,8 @@ import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use("/webhooks", express.raw({ type: "application/json" }), webhookRoutes);
 
 app.use(cors())
