@@ -471,7 +471,15 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const cacheKey = `events:upcoming:page=${page}:limit=${limit}`;
+    const search = req.query.search as string | undefined;
+    const city = req.query.city as string | undefined;
+    const tag = req.query.tag as string | undefined;
+    const sort = req.query.sort === "desc" ? "desc" : "asc";
+
+    const cities = city ? city.split(",").map(c => c.trim()).filter(Boolean) : [];
+    const tags = tag ? tag.split(",").map(t => t.trim().toUpperCase()).filter(Boolean) : [];
+
+    const cacheKey = `events:upcoming:page=${page}:limit=${limit}:search=${search || ""}:city=${city || ""}:tag=${tag || ""}:sort=${sort}`;
 
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -480,16 +488,45 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 
     const skip = (page - 1) * limit;
 
+
+    const filters: any = {
+      isPublished: true,
+      deletedAt: null,
+      startTime: { gte: now }
+    };
+
+    if (search) {
+      filters.title = {
+        contains: search,
+        mode: "insensitive"
+      };
+    }
+
+    // 🏷️ Tags
+    if (tags.length > 0) {
+        filters.tags = {
+            hasSome: tags.map(t => t.toUpperCase())
+        };
+    }
+
+    // 📍 Cities (case insensitive)
+    if (cities.length > 0) {
+        filters.OR = cities.map(city => ({
+            location: {
+            city: {
+                equals: city,
+                mode: "insensitive"
+            }
+            }
+        }));
+    }
+
     const [events, total] = await Promise.all([
       prisma.event.findMany({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { gte: now }
-        },
+        where: filters,
         skip,
         take: limit,
-        orderBy: { startTime: "asc" },
+        orderBy: { startTime: sort },
         include: {
           location: true,
           organizer: {
@@ -498,11 +535,7 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
         }
       }),
       prisma.event.count({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { gte: now }
-        }
+        where: filters
       })
     ]);
 
@@ -530,7 +563,15 @@ export const getPastEvents = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const cacheKey = `events:past:page=${page}:limit=${limit}`;
+    const search = req.query.search as string | undefined;
+    const city = req.query.city as string | undefined;
+    const tag = req.query.tag as string | undefined;
+    const sort = req.query.sort === "desc" ? "desc" : "asc";
+
+    const cities = city ? city.split(",").map(c => c.trim()).filter(Boolean) : [];
+    const tags = tag ? tag.split(",").map(t => t.trim().toUpperCase()).filter(Boolean) : [];
+
+    const cacheKey = `events:past:page=${page}:limit=${limit}:search=${search || ""}:city=${city || ""}:tag=${tag || ""}:sort=${sort}`;
 
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -539,16 +580,45 @@ export const getPastEvents = async (req: Request, res: Response) => {
 
     const skip = (page - 1) * limit;
 
+
+    const filters: any = {
+      isPublished: true,
+      deletedAt: null,
+      startTime: { lt: now }
+    };
+
+    if (search) {
+      filters.title = {
+        contains: search,
+        mode: "insensitive"
+      };
+    }
+
+    // 🏷️ Tags
+    if (tags.length > 0) {
+        filters.tags = {
+            hasSome: tags.map(t => t.toUpperCase())
+        };
+    }
+
+    // 📍 Cities (case insensitive)
+    if (cities.length > 0) {
+        filters.OR = cities.map(city => ({
+            location: {
+            city: {
+                equals: city,
+                mode: "insensitive"
+            }
+            }
+        }));
+    }
+
     const [events, total] = await Promise.all([
       prisma.event.findMany({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { lt: now }
-        },
+        where: filters,
         skip,
         take: limit,
-        orderBy: { startTime: "desc" },
+        orderBy: { startTime: sort === "asc" ? "asc" : "desc" },
         include: {
           location: true,
           organizer: {
@@ -557,11 +627,7 @@ export const getPastEvents = async (req: Request, res: Response) => {
         }
       }),
       prisma.event.count({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { lt: now }
-        }
+        where: filters
       })
     ]);
 

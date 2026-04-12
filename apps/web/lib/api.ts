@@ -5,10 +5,10 @@ export const getEvents = async(page=1, limit=10) => {
     return res;
 }
 
-export const getUpcomingEvents = async (page = 1, limit = 10) => {
-  return callPublicApi(`/events/upcoming?page=${page}&limit=${limit}`);
+export const getUpcomingEvents = async (query: string) => {
+  return callPublicApi(`/events/upcoming?${query}`);
 };
 
-export const getPastEvents = async (page = 1, limit = 10) => {
-  return callPublicApi(`/events/past?page=${page}&limit=${limit}`);
+export const getPastEvents = async (query: string) => {
+  return callPublicApi(`/events/past?${query}`);
 };
