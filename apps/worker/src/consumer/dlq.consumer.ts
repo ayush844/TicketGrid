@@ -1,6 +1,6 @@
 import amqp from "amqplib";
 
-export const startDLQConsumer = async () => {
+export const startLogDLQConsumer = async () => {
     const connection = await amqp.connect(process.env.RABBITMQ_URL!);
 
     const channel = await connection.createChannel();
@@ -18,6 +18,29 @@ export const startDLQConsumer = async () => {
         const data = msg.content.toString();
 
         console.error("Received failed log message from DLQ:", data);
+
+        channel.ack(msg);
+    })
+}
+
+export const startEmailDLQConsumer = async () => {
+    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
+
+    const channel = await connection.createChannel();
+    channel.prefetch(5);
+
+    await channel.assertQueue("failed_emails", {
+        durable: true
+    });
+
+    console.log("listening for failed emails (DLQ)...");
+
+    channel.consume("failed_emails", async (msg) => {
+        if(!msg) return;
+
+        const data = msg.content.toString();
+
+        console.error("Received failed email message from DLQ:", data);
 
         channel.ack(msg);
     })

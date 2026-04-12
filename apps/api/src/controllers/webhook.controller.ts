@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { stripe } from "../config/stripe.js";
 import { prisma } from "../config/prisma.js";
 import { generateQRCode } from "../utils/qr.utils.js";
+import { publishEmail } from "../services/email.publisher.js";
 
 type TicketData = {
     id: string;
@@ -55,7 +56,21 @@ export const stripeWebhook = async (req: Request, res: Response) => {
             const booking = payment.booking;
 
             if(booking.status == "CONFIRMED"){
-                return;
+                return res.json({ received: true });
+            }
+
+            const [user, dbEvent] = await Promise.all([
+                prisma.user.findUnique({
+                    where: { id: booking.userId }
+                }),
+                prisma.event.findUnique({
+                    where: { id: booking.eventId }
+                })
+            ]);
+
+            if (!user || !dbEvent) {
+                console.error("User or Event not found");
+                return res.json({ received: true });
             }
 
             const ticketsData: TicketData[] = await Promise.all(
@@ -73,7 +88,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
                 })
             );
 
-            await prisma.$transaction(async (tx) => {
+            const result = await prisma.$transaction(async (tx) => {
 
                 const updatedPayment = await tx.payment.updateMany({
                     where: {
@@ -88,7 +103,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
 
                 if (updatedPayment.count === 0) {
                     console.log("Webhook already processed safely");
-                    return;
+                    return { success: false};
                 }
 
                 await tx.booking.update({
@@ -110,7 +125,20 @@ export const stripeWebhook = async (req: Request, res: Response) => {
                 await tx.ticket.createMany({
                     data: ticketsData
                 });
+
+                return { success: true };
             });
+
+            if (result.success) {
+                publishEmail({
+                    type: "BOOKING_CONFIRMATION",
+                    email: user.email,
+                    data: {
+                        eventTitle: dbEvent.title,
+                        tickets: ticketsData
+                    }
+                });
+            }
 
         } catch (error) {
             console.error("Webhook processing error:", error);

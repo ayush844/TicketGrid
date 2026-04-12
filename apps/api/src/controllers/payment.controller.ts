@@ -67,6 +67,17 @@ export const createCheckoutSession = async(req: AuthenticatedRequest, res: Respo
             cancel_url: `${process.env.FRONTEND_URL}/booking-cancel?bookingId=${booking.id}`
         });
 
+        const existingPayment = await prisma.payment.findUnique({
+            where: { bookingId: booking.id }
+        });
+
+        if (existingPayment) {
+            return res.json({
+                message: "Payment already initiated",
+                payment: existingPayment
+            });
+        }
+
         await prisma.payment.create({
             data: {
                 bookingId: booking.id,

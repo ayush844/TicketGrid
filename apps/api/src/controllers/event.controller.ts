@@ -4,7 +4,6 @@ import { generateSlug } from "../utils/slug.utils.js";
 import { prisma } from "../config/prisma.js";
 import { redis } from "../config/redis.js";
 import { clearListingCache, invalidateEventCache } from "../utils/cacheHelper.utils.js";
-import { createLog } from "../services/log.service.js";
 import { publishLog } from "../services/log.publisher.js";
 import { LOG_ACTIONS } from "../constants/logActions.js";
 

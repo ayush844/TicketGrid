@@ -29,6 +29,7 @@ const BookingCard = ({
   };
 
   const handleReserve = async () => {
+    if(loading) return;
     try {
       setLoading(true);
 
@@ -61,6 +62,7 @@ const BookingCard = ({
   };
 
   const handleCheckout = async () => {
+    if(loading) return;
     try {
       setLoading(true);
 

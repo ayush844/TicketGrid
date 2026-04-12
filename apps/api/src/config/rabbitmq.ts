@@ -17,6 +17,15 @@ export const connectRabbitMQ = async () => {
 
     await channel.bindQueue("failed_logs", "dlx", "");
 
+    await channel.assertQueue("email_queue", {
+        durable: true,
+        deadLetterExchange: "dlx"
+    });
+
+    await channel.assertQueue("failed_emails", {durable: true});
+
+    await channel.bindQueue("failed_emails", "dlx", "");
+
     console.log("RabbitMQ connected");
 }
 
