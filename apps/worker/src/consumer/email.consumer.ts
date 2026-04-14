@@ -2,6 +2,7 @@ import amqp from "amqplib";
 import { addLogToBuffer } from "../services/logBuffer.service.js";
 import { bookingEmailTemplate } from "../templates/bookingConfirm.template.js";
 import { sendEmail } from "../services/email.service.js";
+import { welcomeEmailTemplate } from "../templates/welcome.template.js";
 
 export const startEmailConsumer = async () => {
     const connection = await amqp.connect(process.env.RABBITMQ_URL!);
@@ -28,7 +29,7 @@ export const startEmailConsumer = async () => {
             console.log("sending email with data:", payload);
             if (payload.type === "BOOKING_CONFIRMATION") {
                 const { tickets } = payload.data;
-                
+
                 await sendEmail({
                     to: payload.email,
                     subject: "🎟 Booking Confirmed",
@@ -39,6 +40,14 @@ export const startEmailConsumer = async () => {
                         encoding: "base64",
                         cid: `qr-${index}`
                     }))
+                });
+            }
+
+            if (payload.type === "WELCOME") {
+                await sendEmail({
+                    to: payload.email,
+                    subject: "👋 Welcome to TicketGrid",
+                    html: welcomeEmailTemplate(payload.data)
                 });
             }
 

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { hash, compare } from "bcryptjs";
+import { publishEmail } from "../services/email.publisher.js";
 
 
 
@@ -34,6 +35,15 @@ export const signup = async (req: Request, res: Response)=>{
                 email,
                 password: hashedPassword,
                 role
+            }
+        });
+
+        publishEmail({
+            type: "WELCOME",
+            email: user.email,
+            data: {
+                email: user.email,
+                role: user.role
             }
         });
 
