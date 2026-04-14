@@ -6,6 +6,7 @@ import { redis } from "../config/redis.js";
 import { clearListingCache, invalidateEventCache } from "../utils/cacheHelper.utils.js";
 import { publishLog } from "../services/log.publisher.js";
 import { LOG_ACTIONS } from "../constants/logActions.js";
+import { publishEmail } from "../services/email.publisher.js";
 
 
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
@@ -334,6 +335,21 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
                 message: "Not Authorized"
             });
         }
+
+        const bookings = await prisma.booking.findMany({
+            where: {
+                eventId: id,
+                status: "CONFIRMED"
+            },
+            include: {
+                user: true
+            }
+        });
+
+        const uniqueUsers = Array.from(
+            new Map(bookings.map(b => [b.user.id, b.user])).values()
+        );
+
         const delId = event.id;
         const delTitle = event.title;
         const updated = await prisma.event.update({
@@ -355,6 +371,16 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
             metadata: {
                 title: delTitle
             }
+        });
+
+        uniqueUsers.forEach(user => {
+            publishEmail({
+                type: "EVENT_CANCELLED",
+                email: user.email,
+                data: {
+                    eventTitle: event.title
+                }
+            });
         });
 
 

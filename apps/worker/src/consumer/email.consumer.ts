@@ -3,6 +3,7 @@ import { addLogToBuffer } from "../services/logBuffer.service.js";
 import { bookingEmailTemplate } from "../templates/bookingConfirm.template.js";
 import { sendEmail } from "../services/email.service.js";
 import { welcomeEmailTemplate } from "../templates/welcome.template.js";
+import { eventCancelledTemplate } from "../templates/eventCancelled.template.js";
 
 export const startEmailConsumer = async () => {
     const connection = await amqp.connect(process.env.RABBITMQ_URL!);
@@ -48,6 +49,14 @@ export const startEmailConsumer = async () => {
                     to: payload.email,
                     subject: "👋 Welcome to TicketGrid",
                     html: welcomeEmailTemplate(payload.data)
+                });
+            }
+
+            if (payload.type === "EVENT_CANCELLED") {
+                await sendEmail({
+                    to: payload.email,
+                    subject: "❌ Event Cancelled",
+                    html: eventCancelledTemplate(payload.data)
                 });
             }
 
