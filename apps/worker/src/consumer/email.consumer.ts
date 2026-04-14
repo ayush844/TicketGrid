@@ -4,6 +4,7 @@ import { bookingEmailTemplate } from "../templates/bookingConfirm.template.js";
 import { sendEmail } from "../services/email.service.js";
 import { welcomeEmailTemplate } from "../templates/welcome.template.js";
 import { eventCancelledTemplate } from "../templates/eventCancelled.template.js";
+import { forgotPasswordTemplate } from "../templates/forgotPassword.template.js";
 
 export const startEmailConsumer = async () => {
     const connection = await amqp.connect(process.env.RABBITMQ_URL!);
@@ -57,6 +58,14 @@ export const startEmailConsumer = async () => {
                     to: payload.email,
                     subject: "❌ Event Cancelled",
                     html: eventCancelledTemplate(payload.data)
+                });
+            }
+
+            if (payload.type === "FORGOT_PASSWORD") {
+                await sendEmail({
+                    to: payload.email,
+                    subject: "🔐 Reset your password",
+                    html: forgotPasswordTemplate(payload.data)
                 });
             }
 

@@ -53,6 +53,9 @@ model User {
   role Role
   createdAt DateTime @default(now())
 
+  resetToken    String?
+  resetTokenExp DateTime?
+
   events Event[]
   bookings Booking[]
   tickets Ticket[]

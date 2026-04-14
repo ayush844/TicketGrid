@@ -116,9 +116,12 @@ export default function Signin() {
             </div>
 
             <div className="text-right">
-              <span className="text-sm text-cyan-400 hover:text-cyan-300 cursor-pointer transition-colors">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+              >
                 Forgot password?
-              </span>
+              </Link>
             </div>
 
             <button
