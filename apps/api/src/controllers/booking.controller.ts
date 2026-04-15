@@ -17,6 +17,19 @@ export const reserveTickets = async (req: AuthenticatedRequest, res: Response) =
         }
 
         const booking = await prisma.$transaction(async (tx) => {
+
+            const existingBooking = await tx.booking.findFirst({
+                where: {
+                    userId: req.user!.userId,
+                    eventId: eventId,
+                    status: "PENDING"
+                }
+            });
+
+            if(existingBooking){
+                throw new Error("A booking is already in progress for this event. If your payment didn’t complete, please wait 10 minutes before trying again.");
+            }
+
             const event = await tx.event.findUnique({
                 where: {
                     id: eventId
@@ -60,10 +73,10 @@ export const reserveTickets = async (req: AuthenticatedRequest, res: Response) =
         })
 
         return res.status(201).json({
-            bookingId: booking.id,
-            quantity: booking.quantity,
-            totalAmount: booking.totalAmount,
-            status: booking.status
+            bookingId: booking?.id,
+            quantity: booking?.quantity,
+            totalAmount: booking?.totalAmount,
+            status: booking?.status
         });
             
     } catch (error: any) {

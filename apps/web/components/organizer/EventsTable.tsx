@@ -23,7 +23,6 @@ const EventsTable = ({ events }: Props) => {
   return (
     <div className="border border-white/10 rounded-lg bg-slate-900/40 overflow-hidden">
 
-      {/* 🖥️ DESKTOP TABLE */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm min-w-[700px]">
 
@@ -100,7 +99,6 @@ const EventsTable = ({ events }: Props) => {
         </table>
       </div>
 
-      {/* 📱 MOBILE VIEW */}
       <div className="md:hidden divide-y divide-white/10">
         {events.map((event) => (
           <div key={event.id} className="p-4 space-y-3">

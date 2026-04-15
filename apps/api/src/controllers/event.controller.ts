@@ -3,9 +3,10 @@ import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 import { generateSlug } from "../utils/slug.utils.js";
 import { prisma } from "../config/prisma.js";
 import { redis } from "../config/redis.js";
-import { clearListingCache } from "../utils/cacheHelper.utils.js";
-import { createLog } from "../services/log.service.js";
+import { clearListingCache, invalidateEventCache } from "../utils/cacheHelper.utils.js";
 import { publishLog } from "../services/log.publisher.js";
+import { LOG_ACTIONS } from "../constants/logActions.js";
+import { publishEmail } from "../services/email.publisher.js";
 
 
 export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
@@ -46,12 +47,12 @@ export const createEvent = async(req: AuthenticatedRequest, res: Response)=>{
             });
         });
 
-        await clearListingCache();
+        await invalidateEventCache();
 
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "CREATE_EVENT",
+            action: LOG_ACTIONS.CREATE_EVENT,
             entityType: "EVENT",
             entityId: event.id,
             metadata: {
@@ -76,7 +77,6 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
         const {id} = req.params;
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -144,14 +144,16 @@ export const updateEvent = async(req: AuthenticatedRequest, res: Response)=>{
             });
         });
 
-        await redis.del(`event:slug:${existingEvent.slug}`);
-        await redis.del(`event:slug:${updatedEvent.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(existingEvent.slug);
+
+        if(existingEvent.slug != updatedEvent.slug){
+            await invalidateEventCache(updatedEvent.slug);
+        }
 
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "UPDATE_EVENT",
+            action: LOG_ACTIONS.UPDATE_EVENT,
             entityType: "EVENT",
             entityId: updatedEvent.id,
             metadata: {
@@ -175,7 +177,6 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
 
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -224,13 +225,12 @@ export const publishEvent = async(req: AuthenticatedRequest, res: Response) => {
             }
         })
 
-        await redis.del(`event:slug:${updated.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(updated.slug);
 
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "PUBLISH_EVENT",
+            action: LOG_ACTIONS.PUBLISH_EVENT,
             entityType: "EVENT",
             entityId: updated.id,
             metadata: {
@@ -253,7 +253,6 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
         const {id} = req.params;
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -287,13 +286,12 @@ export const cancelEvent = async(req: AuthenticatedRequest, res: Response) => {
             }
         });
 
-        await redis.del(`event:slug:${updated.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(updated.slug);
 
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "CANCEL_EVENT",
+            action: LOG_ACTIONS.CANCEL_EVENT,
             entityType: "EVENT",
             entityId: updated.id,
             metadata: {
@@ -317,7 +315,6 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
         const {id} = req.params;
 
         if(!id || Array.isArray(id)){
-            console.log("id is >> ", id);
             return res.status(400).json({message: "Invalid Event Id"});
         }
 
@@ -338,6 +335,21 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
                 message: "Not Authorized"
             });
         }
+
+        const bookings = await prisma.booking.findMany({
+            where: {
+                eventId: id,
+                status: "CONFIRMED"
+            },
+            include: {
+                user: true
+            }
+        });
+
+        const uniqueUsers = Array.from(
+            new Map(bookings.map(b => [b.user.id, b.user])).values()
+        );
+
         const delId = event.id;
         const delTitle = event.title;
         const updated = await prisma.event.update({
@@ -348,18 +360,27 @@ export const softDeleteEvent = async(req: AuthenticatedRequest, res: Response) =
             }
         });
 
-        await redis.del(`event:slug:${updated.slug}`);
-        await clearListingCache();
+        await invalidateEventCache(updated.slug);
 
         publishLog({
             userId: req.user!.userId,
             role: req.user!.role,
-            action: "DELETE_EVENT",
+            action: LOG_ACTIONS.DELETE_EVENT,
             entityType: "EVENT",
             entityId: delId,
             metadata: {
                 title: delTitle
             }
+        });
+
+        uniqueUsers.forEach(user => {
+            publishEmail({
+                type: "EVENT_CANCELLED",
+                email: user.email,
+                data: {
+                    eventTitle: event.title
+                }
+            });
         });
 
 
@@ -383,12 +404,11 @@ export const getPublicEvents = async (req: Request, res: Response) => {
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 10;
 
-        const cacheKey = `events:page=${page}:limit=${limit}`;
+        const cacheKey = `events:list:page=${page}:limit=${limit}`;
 
         const cached = await redis.get(cacheKey);
         
         if(cached){
-            console.log("Serving from cache");
             return res.json(JSON.parse(cached));
         }
 
@@ -457,7 +477,7 @@ export const getPublicEvents = async (req: Request, res: Response) => {
             }
         }
 
-        await redis.set(cacheKey, JSON.stringify(responseData), "EX", 60); // Cache for 60 seconds
+        await redis.setex(cacheKey, 60, JSON.stringify(responseData));
 
         return res.json(responseData);
 
@@ -476,26 +496,62 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const cacheKey = `events:upcoming:page=${page}:limit=${limit}`;
+    const search = req.query.search as string | undefined;
+    const city = req.query.city as string | undefined;
+    const tag = req.query.tag as string | undefined;
+    const sort = req.query.sort === "desc" ? "desc" : "asc";
+
+    const cities = city ? city.split(",").map(c => c.trim()).filter(Boolean) : [];
+    const tags = tag ? tag.split(",").map(t => t.trim().toUpperCase()).filter(Boolean) : [];
+
+    const cacheKey = `events:upcoming:page=${page}:limit=${limit}:search=${search || ""}:city=${city || ""}:tag=${tag || ""}:sort=${sort}`;
 
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("Serving upcoming from cache");
       return res.json(JSON.parse(cached));
     }
 
     const skip = (page - 1) * limit;
 
+
+    const filters: any = {
+      isPublished: true,
+      deletedAt: null,
+      startTime: { gte: now }
+    };
+
+    if (search) {
+      filters.title = {
+        contains: search,
+        mode: "insensitive"
+      };
+    }
+
+    // 🏷️ Tags
+    if (tags.length > 0) {
+        filters.tags = {
+            hasSome: tags.map(t => t.toUpperCase())
+        };
+    }
+
+    // 📍 Cities (case insensitive)
+    if (cities.length > 0) {
+        filters.OR = cities.map(city => ({
+            location: {
+            city: {
+                equals: city,
+                mode: "insensitive"
+            }
+            }
+        }));
+    }
+
     const [events, total] = await Promise.all([
       prisma.event.findMany({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { gte: now }
-        },
+        where: filters,
         skip,
         take: limit,
-        orderBy: { startTime: "asc" },
+        orderBy: { startTime: sort },
         include: {
           location: true,
           organizer: {
@@ -504,11 +560,7 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
         }
       }),
       prisma.event.count({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { gte: now }
-        }
+        where: filters
       })
     ]);
 
@@ -519,7 +571,7 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
       totalPages: Math.ceil(total / limit)
     };
 
-    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+    await redis.setex(cacheKey, 60, JSON.stringify(response));
 
     return res.json(response);
 
@@ -536,26 +588,62 @@ export const getPastEvents = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const cacheKey = `events:past:page=${page}:limit=${limit}`;
+    const search = req.query.search as string | undefined;
+    const city = req.query.city as string | undefined;
+    const tag = req.query.tag as string | undefined;
+    const sort = req.query.sort === "desc" ? "desc" : "asc";
+
+    const cities = city ? city.split(",").map(c => c.trim()).filter(Boolean) : [];
+    const tags = tag ? tag.split(",").map(t => t.trim().toUpperCase()).filter(Boolean) : [];
+
+    const cacheKey = `events:past:page=${page}:limit=${limit}:search=${search || ""}:city=${city || ""}:tag=${tag || ""}:sort=${sort}`;
 
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("Serving past from cache");
       return res.json(JSON.parse(cached));
     }
 
     const skip = (page - 1) * limit;
 
+
+    const filters: any = {
+      isPublished: true,
+      deletedAt: null,
+      startTime: { lt: now }
+    };
+
+    if (search) {
+      filters.title = {
+        contains: search,
+        mode: "insensitive"
+      };
+    }
+
+    // 🏷️ Tags
+    if (tags.length > 0) {
+        filters.tags = {
+            hasSome: tags.map(t => t.toUpperCase())
+        };
+    }
+
+    // 📍 Cities (case insensitive)
+    if (cities.length > 0) {
+        filters.OR = cities.map(city => ({
+            location: {
+            city: {
+                equals: city,
+                mode: "insensitive"
+            }
+            }
+        }));
+    }
+
     const [events, total] = await Promise.all([
       prisma.event.findMany({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { lt: now }
-        },
+        where: filters,
         skip,
         take: limit,
-        orderBy: { startTime: "desc" },
+        orderBy: { startTime: sort === "asc" ? "asc" : "desc" },
         include: {
           location: true,
           organizer: {
@@ -564,11 +652,7 @@ export const getPastEvents = async (req: Request, res: Response) => {
         }
       }),
       prisma.event.count({
-        where: {
-          isPublished: true,
-          deletedAt: null,
-          startTime: { lt: now }
-        }
+        where: filters
       })
     ]);
 
@@ -579,7 +663,7 @@ export const getPastEvents = async (req: Request, res: Response) => {
       totalPages: Math.ceil(total / limit)
     };
 
-    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+    await redis.setex(cacheKey, 60, JSON.stringify(response));
 
     return res.json(response);
 
@@ -599,12 +683,11 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
             });
         }
 
-        const cacheKey = `event:slug:${slug}`;
+        const cacheKey = `event:detail:slug=${slug}`;
 
         const cached = await redis.get(cacheKey);
         
         if(cached){
-            console.log("Serving from cache");
             return res.json(JSON.parse(cached));
         }
 
@@ -633,7 +716,7 @@ export const getPublicEventBySlug = async (req: Request, res: Response) => {
             });
         }
 
-        await redis.set(cacheKey, JSON.stringify({event}), "EX", 120);
+        await redis.setex(cacheKey, 300, JSON.stringify({event}));
 
         return res.json({
             event

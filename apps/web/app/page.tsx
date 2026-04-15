@@ -8,12 +8,6 @@ import { callBackend } from "@/lib/protectedApi";
 
 export default async function Home() {
 
-  // const data1 = await callBackend("/test/less-protected");
-  // console.log("Data from less-protected route:", data1);
-
-
-  // const data2 = await callBackend("/test/protected");
-  // console.log("Data from protected route:", data2);
   getEvents();
   return (
     <div className=" min-h-screen">

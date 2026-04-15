@@ -37,7 +37,7 @@ export default function BookingSuccessPage() {
 
                 if (attempts < 5) {
                     attempts++;
-                    setTimeout(fetchBooking, 1500); // retry
+                    setTimeout(fetchBooking, 1500);
                 }
             } catch (err) {
                 console.error(err);

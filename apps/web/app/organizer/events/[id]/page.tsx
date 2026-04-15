@@ -16,7 +16,6 @@ export default async function EventStatsPage({ params }: any) {
     <main className="min-h-screen bg-slate-950 text-white pt-28 pb-16 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto space-y-10">
 
-        {/* Header */}
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
             {data.title}
@@ -26,7 +25,6 @@ export default async function EventStatsPage({ params }: any) {
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <Card label="Revenue" value={`₹${data.revenue}`} />
           <Card label="Tickets Sold" value={data.totalTickets} />
@@ -34,10 +32,8 @@ export default async function EventStatsPage({ params }: any) {
           <Card label="Remaining" value={data.remainingTickets} />
         </div>
 
-        {/* Recent Bookings */}
         <section className="border border-white/10 rounded-lg bg-slate-900/40 overflow-hidden">
 
-          {/* Header */}
           <div className="px-5 py-4 border-b border-white/10 flex justify-between items-center">
             <h2 className="text-sm font-medium text-white">
               Recent Bookings
@@ -47,7 +43,6 @@ export default async function EventStatsPage({ params }: any) {
             </span>
           </div>
 
-          {/* Desktop Table */}
           <div className="hidden md:block">
             <table className="w-full text-sm">
               <thead className="text-xs text-slate-500 uppercase tracking-wide border-b border-white/10">
@@ -87,7 +82,6 @@ export default async function EventStatsPage({ params }: any) {
             </table>
           </div>
 
-          {/* Mobile */}
           <div className="md:hidden divide-y divide-white/10">
             {data.recentBookings.length === 0 ? (
               <div className="p-10 text-center text-sm text-slate-400">

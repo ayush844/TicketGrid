@@ -9,10 +9,8 @@ const Footer = () => {
 <footer className="relative bg-slate-950 text-slate-300 border-t border-slate-900">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14">
     
-    {/* Top row: Brand + Socials */}
     <div className="flex flex-col md:flex-row items-center justify-between gap-10">
       
-      {/* Brand */}
       <div className="flex items-center gap-4">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl blur-md opacity-60" />
@@ -31,7 +29,6 @@ const Footer = () => {
         </div>
       </div>
 
-    {/*  Social Icons  */}
     <div className="flex gap-3">
       {[
         {
@@ -60,10 +57,9 @@ const Footer = () => {
     </div>
     </div>
 
-    {/* Bottom bar */}
     <div className="mt-10 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
       <p>© {currentYear} TicketGrid. All rights reserved.</p>
-      <p>Made with laptop by Ayush Sharma</p>
+      <p>Made by Ayush Sharma</p>
     </div>
 
   </div>

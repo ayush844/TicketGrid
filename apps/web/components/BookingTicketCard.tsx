@@ -30,19 +30,16 @@ const BookingTicketCard = ({ booking }: Props) => {
     <>
       <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur hover:border-cyan-500/40 transition">
 
-        {/* IMAGE */}
         <img
           src={event.imageUrl || defaultBg.src}
           alt={event.title}
           className="w-full h-40 object-cover rounded-lg mb-4"
         />
 
-        {/* TITLE */}
         <h3 className="text-lg font-semibold mb-2">
           {event.title}
         </h3>
 
-        {/* INFO */}
         <div className="text-sm text-slate-400 space-y-1 mb-4">
 
           <div className="flex items-center gap-2">
@@ -62,7 +59,6 @@ const BookingTicketCard = ({ booking }: Props) => {
 
         </div>
 
-        {/* STATUS */}
         <div className="flex justify-between items-center">
 
           <span
@@ -85,7 +81,6 @@ const BookingTicketCard = ({ booking }: Props) => {
         </div>
       </div>
 
-      {/* MODAL */}
       {open && (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
 

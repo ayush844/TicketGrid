@@ -85,10 +85,8 @@ const Signup = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-slate-950 overflow-hidden px-4">
       
-      {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"></div>
 
-      {/* Glow Mesh */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px] animate-float"></div>
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-500/20 rounded-full blur-[120px] animate-float-delayed"></div>
@@ -96,10 +94,8 @@ const Signup = () => {
 
       <div className="relative z-10 w-full max-w-md">
         
-        {/* Card */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
           
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-6">
               <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
@@ -114,7 +110,6 @@ const Signup = () => {
             </p>
           </div>
 
-          {/* Role Toggle */}
           <div className="flex bg-white/5 p-1 rounded-xl mb-6 border border-white/10">
             <button
               type="button"
@@ -140,10 +135,8 @@ const Signup = () => {
             </button>
           </div>
 
-          {/* Form */}
           <form className="space-y-5" onSubmit={handleSignup}>
             
-            {/* Email */}
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
               <input
@@ -155,7 +148,6 @@ const Signup = () => {
               />
             </div>
 
-            {/* Password */}
             <div className="relative">
               <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
               <input
@@ -167,7 +159,6 @@ const Signup = () => {
               />
             </div>
 
-            {/* Confirm Password */}
             <div className="relative">
               <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
               <input
@@ -179,7 +170,6 @@ const Signup = () => {
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -191,7 +181,6 @@ const Signup = () => {
             </button>
           </form>
 
-          {/* Footer */}
           <p className="text-center text-sm text-slate-500 mt-6">
             Already have an account?{" "}
             <Link href="/signin" className="text-cyan-400 hover:text-cyan-300 cursor-pointer transition-colors">

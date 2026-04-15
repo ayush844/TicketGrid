@@ -16,7 +16,6 @@ export const callBackend = async (
 ) => {
   const session = await getServerSession(authOptions);
 
-  // 🔒 Not logged in
   if (!session) {
     throw new Error("UNAUTHORIZED");
   }
@@ -40,19 +39,14 @@ export const callBackend = async (
     }
   );
 
-  console.log("Backend response status:", response.status);
-
-  // ❌ Not found → trigger global 404 page
   if (response.status === 404) {
     notFound();
   }
 
-  // 🔒 Unauthorized (token expired / invalid)
   if (response.status === 401) {
     throw new Error("UNAUTHORIZED");
   }
 
-  // ❌ Other errors
   if (!response.ok) {
     let errorMessage = "Internal Server Error";
 
@@ -60,7 +54,6 @@ export const callBackend = async (
       const error = await response.json();
       errorMessage = error?.message || errorMessage;
     } catch {
-      // fallback if no JSON
     }
 
     console.error("Backend error:", errorMessage);

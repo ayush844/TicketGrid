@@ -3,7 +3,12 @@
 import { getUpcomingEvents } from "@/lib/api";
 
 export const getFeaturedEvents = async () => {
-  const data = await getUpcomingEvents(1, 6);
+  const params = new URLSearchParams();
+
+  params.append("page", "1");
+  params.append("limit", "6");
+
+  const data = await getUpcomingEvents(params.toString());
   return data?.events || [];
 };
 
