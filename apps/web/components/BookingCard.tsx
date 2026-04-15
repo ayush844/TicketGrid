@@ -109,9 +109,20 @@ const BookingCard = ({
       </div>
 
       {bookingId && (
+        <>
         <p className="text-xs text-green-400 text-center mb-4">
           Booking created. Complete payment to confirm.
         </p>
+
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4 text-xs text-yellow-300">
+          <p className="font-semibold mb-1">⚠️ Stripe Test Mode Payment</p>
+          <p>
+            This is a demo checkout. Use test card:
+          </p>
+          <p className="font-mono mt-1">4242 4242 4242 4242</p>
+          <p>Expiry: Any future date • CVV: Any 3 digits</p>
+        </div>
+        </>
       )}
 
       <div className="flex items-center justify-between mb-6">

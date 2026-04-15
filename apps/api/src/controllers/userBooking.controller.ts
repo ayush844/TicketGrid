@@ -17,6 +17,7 @@ export const getUserBooking = async(req: AuthenticatedRequest, res: Response) =>
                     userId,
                     status: "CONFIRMED",
                     event: {
+                        deletedAt: null,
                         startTime: {gte: now}
                     }
                 },
@@ -33,6 +34,7 @@ export const getUserBooking = async(req: AuthenticatedRequest, res: Response) =>
                     userId,
                     status: "CONFIRMED",
                     event: {
+                        deletedAt: null,
                         startTime: {lte: now}
                     }
                 },
@@ -72,9 +74,12 @@ export const getBookingById = async(req: AuthenticatedRequest, res: Response)=>{
             });
         }
 
-        const booking = await prisma.booking.findUnique({
+        const booking = await prisma.booking.findFirst({
             where: {
-                id
+                id,
+                event: {
+                    deletedAt: null
+                }
             },
             include: {
                 event: true,
