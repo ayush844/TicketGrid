@@ -14,7 +14,8 @@ export const startEmailConsumer = async () => {
 
     await channel.assertQueue("email_queue", {
         durable: true,
-        deadLetterExchange: "dlx"
+        deadLetterExchange: "dlx",
+        deadLetterRoutingKey: "failed_emails"
     });
 
     console.log("Worker listening for emails...");

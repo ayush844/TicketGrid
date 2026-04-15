@@ -9,7 +9,8 @@ export const startLogConsumer = async () => {
 
     await channel.assertQueue("activity_logs", {
         durable: true,
-        deadLetterExchange: "dlx"
+        deadLetterExchange: "dlx",
+        deadLetterRoutingKey: "failed_logs"
     });
 
     console.log("Worker listening for logs...");

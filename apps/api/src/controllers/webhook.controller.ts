@@ -5,6 +5,7 @@ import { stripe } from "../config/stripe.js";
 import { prisma } from "../config/prisma.js";
 import { generateQRCode } from "../utils/qr.utils.js";
 import { publishEmail } from "../services/email.publisher.js";
+import { publishPayment } from "../services/payment.publisher.js";
 
 type TicketData = {
     id: string;
@@ -33,116 +34,12 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     if (event.type === "checkout.session.completed") {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        try {
-            const payment = await prisma.payment.findUnique({
-                where: {
-                    stripeSessionId: session.id
-                },
-                include: {
-                    booking: true
-                }
-            });
+        publishPayment({
+            type: "PAYMENT_SUCCESS",
+            stripeSessionId: session.id,
+            paymentIntentId: session.payment_intent
+        });
 
-            if (!payment) {
-                console.error("Payment not found");
-                return res.json({ received: true });
-            }
-
-            if (!payment.booking) {
-                console.error("Booking missing for payment:", payment.id);
-                return res.json({ received: true });
-            }
-
-            const booking = payment.booking;
-
-            if(booking.status == "CONFIRMED"){
-                return res.json({ received: true });
-            }
-
-            const [user, dbEvent] = await Promise.all([
-                prisma.user.findUnique({
-                    where: { id: booking.userId }
-                }),
-                prisma.event.findUnique({
-                    where: { id: booking.eventId }
-                })
-            ]);
-
-            if (!user || !dbEvent) {
-                console.error("User or Event not found");
-                return res.json({ received: true });
-            }
-
-            const ticketsData: TicketData[] = await Promise.all(
-                Array.from({ length: booking.quantity }).map(async () => {
-                    const ticketId = crypto.randomUUID();
-                    const qr = await generateQRCode(ticketId);
-
-                    return {
-                        id: ticketId,
-                        bookingId: booking.id,
-                        eventId: booking.eventId,
-                        userId: booking.userId,
-                        qrCode: qr
-                    };
-                })
-            );
-
-            const result = await prisma.$transaction(async (tx) => {
-
-                const updatedPayment = await tx.payment.updateMany({
-                    where: {
-                        id: payment.id,
-                        status: "PENDING"
-                    },
-                    data: {
-                        status: "SUCCESS",
-                        stripePaymentIntentId: session.payment_intent as string
-                    }
-                });
-
-                if (updatedPayment.count === 0) {
-                    console.log("Webhook already processed safely");
-                    return { success: false};
-                }
-
-                await tx.booking.update({
-                    where: { id: booking.id },
-                    data: {
-                        status: "CONFIRMED"
-                    }
-                });
-
-                await tx.event.update({
-                    where: { id: booking.eventId },
-                    data: {
-                        ticketsSold: {
-                            increment: booking.quantity
-                        }
-                    }
-                });
-
-                await tx.ticket.createMany({
-                    data: ticketsData
-                });
-
-                return { success: true };
-            });
-
-            if (result.success) {
-                publishEmail({
-                    type: "BOOKING_CONFIRMATION",
-                    email: user.email,
-                    data: {
-                        eventTitle: dbEvent.title,
-                        tickets: ticketsData
-                    }
-                });
-            }
-
-        } catch (error) {
-            console.error("Webhook processing error:", error);
-        }
     }
 
     return res.json({ received: true });
