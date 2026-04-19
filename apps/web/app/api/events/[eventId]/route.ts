@@ -1,7 +1,7 @@
 import { callBackend } from "@/lib/protectedApi";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try {
     const { eventId } = await params;
 

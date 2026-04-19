@@ -1,7 +1,7 @@
 import { callBackend } from "@/lib/protectedApi";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try {
     const body = await req.json();
     const { eventId } = await params;

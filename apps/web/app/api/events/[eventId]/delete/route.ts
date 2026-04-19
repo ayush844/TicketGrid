@@ -1,7 +1,7 @@
 import { callBackend } from "@/lib/protectedApi";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try {
     const { eventId } = await params;
     const data = await callBackend(
