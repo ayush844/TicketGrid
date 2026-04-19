@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ even
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try {
     const body = await req.json();
     const { eventId } = await params;
