@@ -1,12 +1,9 @@
 import amqp from "amqplib";
 import { addLogToBuffer } from "../services/logBuffer.service.js";
+import { connectRabbitMQ } from "../config/rabbbitmq.js";
 
 export const startLogConsumer = async () => {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-
-    const channel = await connection.createChannel();
-    channel.prefetch(10);
-
+    const channel = await connectRabbitMQ();
     await channel.assertQueue("activity_logs", {
         durable: true,
         deadLetterExchange: "dlx",

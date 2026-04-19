@@ -1,10 +1,9 @@
 import amqp from "amqplib";
 import fetch from "node-fetch";
+import { connectRabbitMQ } from "../config/rabbbitmq.js";
  
 export const startPaymentConsumer = async () => {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-    const channel = await connection.createChannel();
- 
+    const channel = await connectRabbitMQ();
     await channel.assertQueue("payment_queue", {
         durable: true,
         deadLetterExchange: "dlx",
@@ -20,6 +19,7 @@ export const startPaymentConsumer = async () => {
  
         try {
             const payload = JSON.parse(msg.content.toString());
+
  
             if (payload.type === "PAYMENT_SUCCESS") {
                 await fetch(`${process.env.API_URL}/api/internal/process-payment`, {

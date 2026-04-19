@@ -1,10 +1,8 @@
 import amqp from "amqplib";
+import { connectRabbitMQ } from "../config/rabbbitmq.js";
 
 export const startLogDLQConsumer = async () => {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-
-    const channel = await connection.createChannel();
-    channel.prefetch(5);
+    const channel = await connectRabbitMQ();
 
     await channel.assertQueue("failed_logs", {
         durable: true
@@ -24,10 +22,7 @@ export const startLogDLQConsumer = async () => {
 }
 
 export const startEmailDLQConsumer = async () => {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-
-    const channel = await connection.createChannel();
-    channel.prefetch(5);
+    const channel = await connectRabbitMQ();
 
     await channel.assertQueue("failed_emails", {
         durable: true
@@ -48,10 +43,7 @@ export const startEmailDLQConsumer = async () => {
 
 
 export const startPaymentDLQConsumer = async () => {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-
-    const channel = await connection.createChannel();
-    channel.prefetch(5);
+    const channel = await connectRabbitMQ();
 
     await channel.assertQueue("failed_payments", {
         durable: true

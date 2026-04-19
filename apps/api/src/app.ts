@@ -19,7 +19,25 @@ app.set("trust proxy", 1);
 
 app.use("/webhooks", express.raw({ type: "application/json" }), webhookRoutes);
 
-app.use(cors())
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowed = [
+        "http://localhost:3000",
+        process.env.FRONTEND_URL
+      ];
+
+      if (!origin) return callback(null, true);
+
+      if (allowed.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
