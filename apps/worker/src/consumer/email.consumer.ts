@@ -5,12 +5,10 @@ import { sendEmail } from "../services/email.service.js";
 import { welcomeEmailTemplate } from "../templates/welcome.template.js";
 import { eventCancelledTemplate } from "../templates/eventCancelled.template.js";
 import { forgotPasswordTemplate } from "../templates/forgotPassword.template.js";
+import { connectRabbitMQ } from "../config/rabbbitmq.js";
 
 export const startEmailConsumer = async () => {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-
-    const channel = await connection.createChannel();
-    channel.prefetch(10);
+    const channel = await connectRabbitMQ();
 
     await channel.assertQueue("email_queue", {
         durable: true,

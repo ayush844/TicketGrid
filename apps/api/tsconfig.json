@@ -42,5 +42,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "prisma", "scripts"]
 }
