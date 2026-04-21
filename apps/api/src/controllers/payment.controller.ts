@@ -171,12 +171,16 @@ export const processPayment = async (req: Request, res: Response) => {
                 data: { status: "CONFIRMED" }
             });
  
-            await tx.event.update({
-                where: { id: booking.eventId },
+            const eventUpdate = await tx.event.updateMany({
+                where: { id: booking.eventId, ticketsSold: { lte: dbEvent.capacity - booking.quantity } },
                 data: {
                     ticketsSold: { increment: booking.quantity }
                 }
             });
+
+            if(eventUpdate.count == 0){
+                throw new Error("Not enough capacity");
+            }
  
             await tx.ticket.createMany({
                 data: ticketsData
