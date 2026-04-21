@@ -17,7 +17,7 @@ const Hero = () => {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-6 sm:mb-8 backdrop-blur-sm animate-fade-in-up">
             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400 flex-shrink-0 animate-pulse" />
-            <span className="text-xs sm:text-sm text-slate-300">Trusted by 500,000+ event-goers worldwide</span>
+            <span className="text-xs sm:text-sm text-slate-300">Early Access | Be among the first to explore events</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 sm:mb-8 tracking-tight leading-[1.1]">
@@ -35,9 +35,9 @@ const Hero = () => {
 
           <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto pt-6 sm:pt-8 border-t border-white/10 px-4 animate-fade-in-up animation-delay-800">
             {[
-              { value: '10K+', label: 'Events' },
-              { value: '500K+', label: 'Attendees' },
-              { value: '50+', label: 'Cities' }
+  { value: '0 → 1', label: 'Building in Public' },
+  { value: 'Beta', label: 'Early Access' },
+  { value: '2026', label: 'Launched' }
             ].map((stat, index) => (
               <div key={index} className="group cursor-pointer">
                 <div className="text-2xl sm:text-3xl font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors duration-300 group-hover:scale-110 transform">

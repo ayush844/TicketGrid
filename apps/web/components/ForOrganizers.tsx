@@ -75,10 +75,10 @@ const ForOrganizers = () => {
 
           <div className="grid grid-cols-2 gap-4 sm:gap-6 px-4 lg:px-0">
             {[
-              { value: '95%', label: 'Satisfaction' },
-              { value: '$2.5M+', label: 'Revenue' },
-              { value: '24/7', label: 'Support' },
-              { value: '2.5%', label: 'Fee' }
+              { value: '24/7', label: 'Platform Availability' },
+              { value: '0%', label: 'Setup Complexity' },
+              { value: '1-Click', label: 'Event Creation' },
+              { value: '100%', label: 'Control Over Events' }
             ].map((stat, index) => (
               <div 
                 key={index}
