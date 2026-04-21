@@ -24,7 +24,10 @@ app.use(
     origin: (origin, callback) => {
       const allowed = [
         "http://localhost:3000",
-        process.env.FRONTEND_URL
+      "https://ticketgrid.xyz",
+      "https://www.ticketgrid.xyz",
+      "https://ticket-grid-web-p2pb.vercel.app",
+       process.env.FRONTEND_URL
       ];
 
       if (!origin) return callback(null, true);
