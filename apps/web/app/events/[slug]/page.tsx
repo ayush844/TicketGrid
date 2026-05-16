@@ -32,7 +32,7 @@ const getDuration = (start: string, end: string) => {
   const e = new Date(end);
 
   const diff = (e.getTime() - s.getTime()) / (1000 * 60 * 60);
-  return `${diff} hrs`;
+  return `${diff.toFixed(2)} hrs`;
 };
 
 export default async function Page({

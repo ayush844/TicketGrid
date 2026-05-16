@@ -98,7 +98,7 @@ const BookingCard = ({
   const disabled = isSoldOut || isPastEvent || loading;
 
   return (
-    <div className="bg-white/5 border border-white/10 hover:border-cyan-500/40 rounded-2xl p-6 backdrop-blur-xl shadow-xl transition-all duration-300 hover:shadow-cyan-500/10">
+    <div className="bg-white/5 border border-white/10 hover:border-cyan-500/40 rounded-2xl p-6 backdrop-blur-xl shadow-xl transition-all duration-300 hover:shadow-cyan-500/10 h-fit">
 
       {/* PRICE */}
       <div className="mb-6">
